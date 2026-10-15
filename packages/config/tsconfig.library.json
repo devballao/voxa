@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Voxa — bibliotecas compartilhadas",
+  "extends": "./tsconfig.node.json",
+  "compilerOptions": {
+    "types": [],
+    "declaration": true,
+    "declarationMap": true
+  }
+}

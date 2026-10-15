@@ -1,0 +1,85 @@
+# Serviços de apoio para desenvolvimento local.
+# Uso: pnpm dev:infra | pnpm dev:infra:down | pnpm dev:infra:reset
+# Todas as credenciais aqui são APENAS de desenvolvimento.
+name: voxa-dev
+
+services:
+  postgres:
+    image: postgres:17.11-alpine
+    environment:
+      POSTGRES_USER: voxa
+      POSTGRES_PASSWORD: voxa
+      POSTGRES_DB: voxa
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U voxa -d voxa"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  valkey:
+    image: valkey/valkey:8.1.10-alpine
+    command: ["valkey-server", "--appendonly", "yes"]
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - valkey:/data
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  garage:
+    image: dxflrs/garage:v2.4.1
+    ports:
+      - "127.0.0.1:3900:3900" # API S3
+      - "127.0.0.1:3903:3903" # API de administração
+    volumes:
+      - ./config/garage.toml:/etc/garage.toml:ro
+      - garage:/var/lib/garage
+    healthcheck:
+      # A imagem não tem shell; o próprio binário verifica o nó.
+      test: ["CMD", "/garage", "status"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+  livekit:
+    image: livekit/livekit-server:v1.13.7
+    command: ["--config", "/etc/livekit.yaml"]
+    ports:
+      - "127.0.0.1:7880:7880" # sinalização (HTTP/WebSocket)
+      - "127.0.0.1:7881:7881" # ICE/TCP
+      - "127.0.0.1:7882:7882/udp" # mídia (UDP multiplexado)
+    volumes:
+      - ./config/livekit.dev.yaml:/etc/livekit.yaml:ro
+    healthcheck:
+      test: ["CMD", "busybox", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:7880"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  mailpit:
+    image: axllent/mailpit:v1.31.3
+    ports:
+      - "127.0.0.1:1025:1025" # SMTP
+      - "127.0.0.1:8025:8025" # interface web
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: "1"
+      MP_SMTP_AUTH_ALLOW_INSECURE: "1"
+    healthcheck:
+      test: ["CMD", "/mailpit", "readyz"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  postgres:
+  valkey:
+  garage:

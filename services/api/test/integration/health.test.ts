@@ -4,10 +4,10 @@ import { createDb } from "@voxa/db";
 import { HealthResponse } from "@voxa/protocol/http";
 import { Valkey } from "iovalkey";
 import { RoomServiceClient } from "livekit-server-sdk";
-import { afterAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { construirApp } from "../../src/app.ts";
 import { type Config, carregarConfig } from "../../src/config.ts";
-import { criarVerificacoes } from "../../src/health/checks.ts";
+import { type ClientesDasDependencias, criarVerificacoes } from "../../src/health/checks.ts";
 
 /** Configuração real do .env da raiz, se houver. Sem ela, o teste é pulado. */
 function configDeDesenvolvimento(): Config | undefined {
@@ -28,30 +28,43 @@ const rodar = integracaoDisponivel(
 describe.skipIf(!rodar)(
   "GET /api/v1/health com as dependências reais (requer pnpm dev:infra)",
   () => {
-    const c = config as Config;
-    const db = createDb({ url: c.DATABASE_URL, max: 1 });
-    const valkey = new Valkey(c.VALKEY_URL, { maxRetriesPerRequest: 1 });
-    const s3 = new S3Client({
-      endpoint: c.S3_ENDPOINT,
-      region: c.S3_REGION,
-      forcePathStyle: c.S3_FORCE_PATH_STYLE,
-      credentials: { accessKeyId: c.S3_ACCESS_KEY_ID, secretAccessKey: c.S3_SECRET_ACCESS_KEY },
+    // Conexões criadas no beforeAll: o corpo do describe roda mesmo quando
+    // os testes são pulados, e aqui não há configuração nesse caso.
+    let clientes: ClientesDasDependencias;
+
+    beforeAll(() => {
+      const c = config as Config;
+      clientes = {
+        db: createDb({ url: c.DATABASE_URL, max: 1 }),
+        valkey: new Valkey(c.VALKEY_URL, { maxRetriesPerRequest: 1 }),
+        s3: new S3Client({
+          endpoint: c.S3_ENDPOINT,
+          region: c.S3_REGION,
+          forcePathStyle: c.S3_FORCE_PATH_STYLE,
+          credentials: {
+            accessKeyId: c.S3_ACCESS_KEY_ID,
+            secretAccessKey: c.S3_SECRET_ACCESS_KEY,
+          },
+        }),
+        s3Bucket: c.S3_BUCKET,
+        livekit: new RoomServiceClient(
+          c.LIVEKIT_URL.replace(/^ws/, "http"),
+          c.LIVEKIT_API_KEY,
+          c.LIVEKIT_API_SECRET,
+        ),
+      };
     });
-    const livekit = new RoomServiceClient(
-      c.LIVEKIT_URL.replace(/^ws/, "http"),
-      c.LIVEKIT_API_KEY,
-      c.LIVEKIT_API_SECRET,
-    );
 
     afterAll(async () => {
-      await Promise.allSettled([db.close(), valkey.quit()]);
-      s3.destroy();
+      if (!clientes) return;
+      await Promise.allSettled([clientes.db.close(), clientes.valkey.quit()]);
+      clientes.s3.destroy();
     });
 
     it("responde 200 com Postgres, Valkey, S3 e LiveKit ok", async () => {
       const app = await construirApp({
         versao: "teste",
-        verificacoes: criarVerificacoes({ db, valkey, s3, s3Bucket: c.S3_BUCKET, livekit }),
+        verificacoes: criarVerificacoes(clientes),
       });
       const res = await app.inject({ method: "GET", url: "/api/v1/health" });
       await app.close();

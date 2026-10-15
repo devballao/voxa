@@ -156,6 +156,35 @@ Cada pacote tem seu próprio Vitest, estendendo a configuração compartilhada (
 
 ## 10.5 CI/CD
 
+### O que roda hoje
+
+O workflow [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) roda em todo pull request e em todo push na `main`, com dois jobs em paralelo:
+
+```mermaid
+flowchart LR
+    PR["Pull request<br/>ou push na main"] --> V
+    PR --> I
+    subgraph V["Verificação"]
+        direction TB
+        v1["pnpm install"] --> v2["lint"] --> v3["typecheck"] --> v4["test:unit"] --> v5["build"]
+    end
+    subgraph I["Integração"]
+        direction TB
+        i1["pnpm install"] --> i2["pnpm dev:infra<br/>Postgres, Valkey, Garage,<br/>LiveKit, Mailpit"] --> i3["test:integration"]
+    end
+```
+
+- **Verificação:** com cache do pnpm e do Turborepo; não precisa de Docker.
+- **Integração:** usa a **mesma infraestrutura do desenvolvimento local** (`pnpm dev:infra`). Assim o CI também testa o Compose e o script de inicialização. Se falhar, os logs dos contêineres aparecem no fim do job.
+- **Segurança:**
+  - permissão mínima (`contents: read`);
+  - Actions fixadas pelo **hash do commit**, com a versão no comentário;
+  - `persist-credentials: false` no checkout.
+- **Concorrência:** um push novo no mesmo PR cancela a execução anterior.
+- **Atualizar uma Action:** troque o hash e o comentário juntos, usando uma versão publicada há pelo menos 14 dias. Valide com `docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:1.7.12`.
+
+### Visão completa (fases seguintes)
+
 ```mermaid
 flowchart LR
     PR["Pull request"] --> L["lint + typecheck"]

@@ -1,5 +1,7 @@
 # Voxa
 
+[![CI](https://github.com/devballao/voxa/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/devballao/voxa/actions/workflows/ci.yml)
+
 **Voxa** é uma plataforma de comunicação em comunidade — chat de texto, salas de voz e compartilhamento de tela — **livre, de código aberto e sem fins lucrativos**. Qualquer pessoa pode usar a instância pública ou hospedar a sua própria.
 
 > Status: **pré-alfa / fase de design**. A arquitetura descrita em [`docs/`](docs/README.md) é uma proposta aberta a discussão.

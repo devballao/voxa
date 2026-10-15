@@ -5,3 +5,9 @@ packages:
 
 # Falha a instalação se a versão do Node não atender a "engines" do package.json.
 engineStrict: true
+
+# Dependências autorizadas a rodar scripts de instalação (o pnpm bloqueia as demais).
+# Adicione aqui só pacotes conhecidos, com o motivo.
+allowBuilds:
+  # Confere/instala o binário nativo da plataforma. Vem do drizzle-kit e do tsx.
+  esbuild: true

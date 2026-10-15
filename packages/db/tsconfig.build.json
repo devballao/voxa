@@ -1,0 +1,10 @@
+{
+  "extends": "@voxa/config/tsconfig.library.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "rootDir": "src",
+    "outDir": "dist"
+  },
+  "include": ["src"],
+  "exclude": ["src/**/*.test.ts"]
+}

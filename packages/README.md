@@ -5,8 +5,8 @@ Bibliotecas compartilhadas do monorepo.
 | Pasta | Conteúdo | Issue |
 |---|---|---|
 | `config/` | tsconfig, lint e formatação compartilhados | #3 |
-| `protocol/` | Esquemas Zod e tipos dos contratos cliente ↔ servidor | #6 |
-| `db/` | Drizzle: esquema e migrações | #7 |
+| `protocol/` | Esquemas Zod e tipos dos contratos cliente ↔ servidor ([README](protocol/README.md)) | #6 |
+| `db/` | Drizzle: cliente, esquema e migrações ([README](db/README.md)) | #7 |
 | `core/` | Domínio do backend | MVP |
 | `client-core/` | Stores e clientes REST/gateway, sem React | MVP |
 | `media/` | Wrapper do livekit-client, áudio e captura de tela | MVP |

@@ -9,7 +9,14 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "includes": ["**", "!**/pnpm-lock.yaml", "!**/dist", "!**/coverage", "!**/.turbo"]
+    "includes": [
+      "**",
+      "!**/pnpm-lock.yaml",
+      "!**/dist",
+      "!**/coverage",
+      "!**/.turbo",
+      "!**/migrations/meta"
+    ]
   },
   "formatter": {
     "enabled": true,
@@ -95,7 +102,7 @@
       }
     },
     {
-      "includes": ["**/scripts/**"],
+      "includes": ["**/scripts/**", "**/cli/**"],
       "linter": {
         "rules": {
           "suspicious": {

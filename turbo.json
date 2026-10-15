@@ -23,6 +23,15 @@
       "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/.env"],
       "env": ["DATABASE_URL"]
     },
+    "test:unit": {
+      "dependsOn": ["^build"],
+      "outputs": []
+    },
+    "test:integration": {
+      "dependsOn": ["^build"],
+      "cache": false,
+      "env": ["DATABASE_URL"]
+    },
     "test:watch": {
       "dependsOn": ["^build"],
       "cache": false,

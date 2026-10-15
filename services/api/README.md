@@ -73,7 +73,10 @@ Em `SIGTERM`/`SIGINT`, a API para de aceitar requisições, espera as que estão
 ## Testes
 
 ```bash
-pnpm --filter @voxa/api test
+pnpm --filter @voxa/api test:unit          # unitários (src/), sem Docker
+pnpm --filter @voxa/api test:integration   # integração (test/integration/), requer pnpm dev:infra
+pnpm --filter @voxa/api test               # todos
 ```
 
-Unitários (configuração, verificações, erros, `/health` com dependências simuladas) e um teste de **integração** do `/health` com as dependências reais via `fastify.inject`. O de integração precisa de `pnpm dev:infra` e é pulado quando não há `.env`.
+- **Unitários** (`src/**/*.test.ts`): configuração, verificações, erros e `/health` com dependências simuladas.
+- **Integração** (`test/integration/`): `/health` com as dependências reais via `fastify.inject`. Pulado em `test` quando não há `.env`; em `test:integration`, falha com instruções.

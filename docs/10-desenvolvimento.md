@@ -100,25 +100,50 @@ Meta de cobertura: 80 % em `packages/core` e `packages/protocol`. Nas demais par
 
 ### Como rodar e adicionar testes
 
+**Onde ficam os testes:**
+
+| Tipo | Local | Precisa de |
+|---|---|---|
+| **Unitário** | Ao lado do código: `src/**/*.test.ts` (ex.: `app.ts` + `app.test.ts`) | Nada (sem Docker, sem `.env`) |
+| **Integração** | Pasta própria em cada pacote: `test/integration/**/*.test.ts` | `pnpm dev:infra` + `.env` |
+
+Unitários ficam junto do código, como é o padrão no ecossistema TypeScript/Vitest: fica evidente quando um arquivo não tem teste, e o teste se move junto com o módulo. Os de integração ficam separados porque são mais lentos e dependem de serviços externos. Tudo fica no mesmo repositório, para código e teste mudarem no mesmo PR.
+
 | Comando (na raiz) | O que faz |
 |---|---|
-| `pnpm test` | Roda os testes de todos os pacotes em paralelo, com cache do Turborepo (só reexecuta o que mudou) |
+| `pnpm test:unit` | Só os unitários. Rápido, funciona sem Docker; use no dia a dia |
+| `pnpm test:integration` | Só os de integração. **Falha** se a infraestrutura não estiver configurada, para o CI não passar sem testar nada. Sem cache |
+| `pnpm test` | Todos. Os de integração são **pulados** se não houver `.env` |
 | `pnpm test:watch` | Modo watch em todos os pacotes |
-| `pnpm test:coverage` | Testes com cobertura (v8); relatório HTML e lcov em `<pacote>/coverage/` |
-| `pnpm --filter @voxa/<pacote> test` | Só um pacote |
+| `pnpm test:coverage` | Todos, com cobertura (v8) de `src/`; relatório HTML e lcov em `<pacote>/coverage/` |
+| `pnpm --filter @voxa/<pacote> test:unit` | Só um pacote |
 
 Cada pacote tem seu próprio Vitest, estendendo a configuração compartilhada (`@voxa/config/vitest`). Não usamos o recurso de *projects*/*workspace* do Vitest: ele impediria o cache por pacote do Turborepo. Para adicionar testes a um pacote:
 
 1. `devDependencies`: `vitest`, `@vitest/coverage-v8` e `vite` (mesmas versões de `packages/config`).
-2. Scripts: `"test": "vitest run"`, `"test:watch": "vitest"`, `"test:coverage": "vitest run --coverage"`.
+2. Scripts:
+   ```json
+   "test": "vitest run",
+   "test:unit": "vitest run src/",
+   "test:integration": "vitest run --mode integration test/integration/",
+   "test:watch": "vitest",
+   "test:coverage": "vitest run --coverage"
+   ```
+   Pacotes sem testes de integração usam `"test:unit": "vitest run"` e não têm `test:integration`.
 3. `vitest.config.ts`:
    ```ts
-   import { voxaVitest } from "@voxa/config/vitest";
-   import { defineConfig, mergeConfig } from "vitest/config";
+   import { configVitestVoxa } from "@voxa/config/vitest";
 
-   export default mergeConfig(voxaVitest, defineConfig({ test: {} }));
+   export default configVitestVoxa(); // ou configVitestVoxa({ test: { /* ajustes */ } })
    ```
-4. Testes em `src/**/*.test.ts` (ao lado do código) ou `test/**/*.test.ts`.
+4. Nos testes de integração, decida entre rodar, pular ou falhar com `integracaoDisponivel`:
+   ```ts
+   import { integracaoDisponivel } from "@voxa/config/vitest";
+
+   const rodar = integracaoDisponivel(urlDoBanco !== undefined, "Rode `pnpm dev:infra` e `cp .env.example .env`.");
+   describe.skipIf(!rodar)("integração com …", () => { /* … */ });
+   ```
+   Em `pnpm test`, sem infraestrutura, o bloco é pulado; em `pnpm test:integration` (modo `integration`), vira erro com a instrução.
 
 ## 10.4 Convenções
 

@@ -72,8 +72,10 @@ Na prática:
 ## Testes
 
 ```bash
-pnpm --filter @voxa/db test
+pnpm --filter @voxa/db test:unit          # unitários (src/), sem Docker
+pnpm --filter @voxa/db test:integration   # integração (test/integration/), requer pnpm dev:infra
+pnpm --filter @voxa/db test               # todos
 ```
 
-- Os **testes de integração** criam um banco descartável (`voxa_teste_<aleatório>`), aplicam as migrações do zero, conferem a idempotência e apagam o banco no fim. Precisam de `pnpm dev:infra`.
-- Sem `DATABASE_URL` (nem `.env`), os testes de integração são **pulados**, e os unitários rodam normalmente.
+- Os **testes de integração** (`test/integration/`) criam um banco descartável (`voxa_teste_<aleatório>`), aplicam as migrações do zero, conferem a idempotência e apagam o banco no fim.
+- Sem `DATABASE_URL` (nem `.env`), eles são **pulados** em `test` e **falham** com instruções em `test:integration`.

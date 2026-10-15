@@ -1,11 +1,7 @@
-import { voxaVitest } from "@voxa/config/vitest";
-import { defineConfig, mergeConfig } from "vitest/config";
+import { configVitestVoxa } from "@voxa/config/vitest";
 
-export default mergeConfig(
-  voxaVitest,
-  defineConfig({
-    test: {
-      coverage: { exclude: ["src/main.ts", "**/*.test.ts"] },
-    },
-  }),
-);
+export default configVitestVoxa({
+  test: {
+    coverage: { exclude: ["src/main.ts", "**/*.test.ts"] },
+  },
+});

@@ -24,6 +24,8 @@
     "dev": "tsc -p tsconfig.build.json --watch --preserveWatchOutput",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:unit": "vitest run src/",
+    "test:integration": "vitest run --mode integration test/integration/",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "generate": "drizzle-kit generate",

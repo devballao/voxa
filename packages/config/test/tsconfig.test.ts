@@ -45,6 +45,12 @@ describe("tsconfig compartilhado", () => {
     }
   });
 
+  it("serviços e bibliotecas só aceitam sintaxe removível (o Node 24 roda o .ts direto)", () => {
+    for (const variante of ["tsconfig.node.json", "tsconfig.library.json"]) {
+      expect(opcoesEfetivas(variante)).toMatchObject({ erasableSyntaxOnly: true });
+    }
+  });
+
   it("bibliotecas geram declarações de tipos", () => {
     expect(opcoesEfetivas("tsconfig.library.json")).toMatchObject({
       declaration: true,

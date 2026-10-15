@@ -1,0 +1,24 @@
+{
+  "name": "voxa",
+  "private": true,
+  "description": "Plataforma de comunicação em comunidade, livre e sem fins lucrativos",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/devballao/voxa.git"
+  },
+  "packageManager": "pnpm@12.8.2",
+  "engines": {
+    "node": ">=24.11.0 <25",
+    "pnpm": ">=12.8.2"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test"
+  },
+  "devDependencies": {
+    "turbo": "2.11.6"
+  }
+}

@@ -96,6 +96,28 @@ pnpm dev              # api :3000, gateway :4000, web :5173 com hot reload
 
 Meta de cobertura: 80 % em `packages/core` e `packages/protocol`. Nas demais partes, testes guiados por risco.
 
+### Como rodar e adicionar testes
+
+| Comando (na raiz) | O que faz |
+|---|---|
+| `pnpm test` | Roda os testes de todos os pacotes em paralelo, com cache do Turborepo (só reexecuta o que mudou) |
+| `pnpm test:watch` | Modo watch em todos os pacotes |
+| `pnpm test:coverage` | Testes com cobertura (v8); relatório HTML e lcov em `<pacote>/coverage/` |
+| `pnpm --filter @voxa/<pacote> test` | Só um pacote |
+
+Cada pacote tem seu próprio Vitest, estendendo a configuração compartilhada (`@voxa/config/vitest`). Não usamos o recurso de *projects*/*workspace* do Vitest: ele impediria o cache por pacote do Turborepo. Para adicionar testes a um pacote:
+
+1. `devDependencies`: `vitest`, `@vitest/coverage-v8` e `vite` (mesmas versões de `packages/config`).
+2. Scripts: `"test": "vitest run"`, `"test:watch": "vitest"`, `"test:coverage": "vitest run --coverage"`.
+3. `vitest.config.ts`:
+   ```ts
+   import { voxaVitest } from "@voxa/config/vitest";
+   import { defineConfig, mergeConfig } from "vitest/config";
+
+   export default mergeConfig(voxaVitest, defineConfig({ test: {} }));
+   ```
+4. Testes em `src/**/*.test.ts` (ao lado do código) ou `test/**/*.test.ts`.
+
 ## 10.4 Convenções
 
 - **Commits:** [Conventional Commits](https://www.conventionalcommits.org/pt-br/) (`feat(gateway): resume em outro nó`), que alimentam o changelog automático.

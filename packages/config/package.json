@@ -2,17 +2,43 @@
   "name": "@voxa/config",
   "version": "0.0.0",
   "private": true,
-  "description": "Configuração compartilhada do TypeScript para o monorepo do Voxa",
+  "description": "Configuração compartilhada do TypeScript e do Vitest para o monorepo do Voxa",
+  "type": "module",
   "files": [
-    "tsconfig.*.json"
+    "tsconfig.*.json",
+    "vitest.shared.js",
+    "vitest.shared.d.ts"
   ],
   "exports": {
     "./tsconfig.base.json": "./tsconfig.base.json",
     "./tsconfig.node.json": "./tsconfig.node.json",
     "./tsconfig.library.json": "./tsconfig.library.json",
-    "./tsconfig.react.json": "./tsconfig.react.json"
+    "./tsconfig.react.json": "./tsconfig.react.json",
+    "./vitest": {
+      "types": "./vitest.shared.d.ts",
+      "default": "./vitest.shared.js"
+    }
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
-    "typescript": ">=7.0.2"
+    "typescript": ">=7.0.2",
+    "vitest": ">=5.0.3"
+  },
+  "peerDependenciesMeta": {
+    "vitest": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "24.19.0",
+    "@vitest/coverage-v8": "5.0.3",
+    "typescript": "7.0.2",
+    "vite": "8.3.2",
+    "vitest": "5.0.3"
   }
 }

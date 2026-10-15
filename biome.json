@@ -39,7 +39,12 @@
       "preset": "recommended",
       "suspicious": {
         "noExplicitAny": "error",
-        "noConsole": { "level": "warn", "options": { "allow": ["warn", "error"] } }
+        "noConsole": {
+          "level": "warn",
+          "options": {
+            "allow": ["warn", "error"]
+          }
+        }
       },
       "style": {
         "useImportType": "error",
@@ -85,6 +90,16 @@
                 ]
               }
             }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/scripts/**"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noConsole": "off"
           }
         }
       }

@@ -72,12 +72,14 @@ Pré-requisitos: Node.js 24 LTS (ver `.nvmrc`), pnpm 12 (via `corepack enable`),
 ```bash
 git clone https://github.com/devballao/voxa.git && cd voxa
 pnpm install
-pnpm dev:infra        # sobe postgres, valkey, s3, livekit (modo dev) e mailpit via compose
+cp .env.example .env  # valores apenas de desenvolvimento
+pnpm dev:infra        # sobe postgres, valkey, s3 (garage), livekit e mailpit via compose
 pnpm db:migrate
 pnpm db:seed          # servidor de exemplo + 3 contas de teste
 pnpm dev              # api :3000, gateway :4000, web :5173 com hot reload
 ```
 
+- Portas, credenciais de dev e solução de problemas da infraestrutura: [`infra/compose/README.md`](../infra/compose/README.md). Para parar: `pnpm dev:infra:down`; para apagar os dados: `pnpm dev:infra:reset`.
 - E-mails de desenvolvimento aparecem no **Mailpit** (`http://localhost:8025`).
 - Para testar voz com duas pessoas: abra uma janela anônima e entre com outra conta de teste.
 - Também há um `devcontainer.json` para Codespaces e VS Code.

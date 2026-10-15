@@ -4,7 +4,7 @@ Processos de backend.
 
 | Pasta | Conteúdo | Issue |
 |---|---|---|
-| `api/` | API REST (Fastify) | #8 |
+| `api/` | API REST (Fastify) ([README](api/README.md)) | #8 |
 | `gateway/` | Gateway WebSocket | #9 |
 | `worker/` | Consumidores de filas | #9 |
 

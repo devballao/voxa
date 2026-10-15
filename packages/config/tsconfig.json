@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.node.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "allowJs": true,
+    "checkJs": true
+  },
+  "include": ["test", "vitest.config.ts", "vitest.shared.js", "vitest.shared.d.ts"]
+}

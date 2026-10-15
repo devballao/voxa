@@ -23,16 +23,21 @@ Detalhes e o motivo de cada variante: [docs/10-desenvolvimento.md](../../docs/10
 
 ## Vitest
 
-`@voxa/config/vitest` exporta `voxaVitest`, a configuração de testes comum a todos os pacotes (ambiente Node, padrões de arquivos de teste e cobertura v8 em `coverage/`):
+`@voxa/config/vitest` exporta a configuração de testes comum a todos os pacotes (ambiente Node, padrões de arquivos de teste e cobertura v8 de `src/` em `coverage/`):
 
 ```ts
 // <pacote>/vitest.config.ts
-import { voxaVitest } from "@voxa/config/vitest";
-import { defineConfig, mergeConfig } from "vitest/config";
+import { configVitestVoxa } from "@voxa/config/vitest";
 
-export default mergeConfig(voxaVitest, defineConfig({ test: {} }));
+export default configVitestVoxa(); // ajustes do pacote: configVitestVoxa({ test: { … } })
 ```
 
-O arquivo é JavaScript puro com tipos em `vitest.shared.d.ts`, para funcionar sem build. Passo a passo para adicionar testes a um pacote: [docs/10-desenvolvimento.md](../../docs/10-desenvolvimento.md#como-rodar-e-adicionar-testes).
+| Exportação | Uso |
+|---|---|
+| `configVitestVoxa(ajustes?)` | Monta o `vitest.config.ts`. Com `--mode integration`, marca os testes de integração como obrigatórios |
+| `integracaoDisponivel(disponivel, comoResolver)` | Nos testes de integração: `true` para rodar, `false` para pular (`pnpm test`), ou erro com a instrução (`pnpm test:integration`) |
+| `voxaVitest` | A configuração base, como objeto |
 
-Os testes deste pacote (`test/`) garantem que as variantes de `tsconfig` mantêm as regras críticas (`strict`, `nodenext` nos serviços, `bundler` no web) e que a configuração do Vitest não mude sem querer.
+O arquivo é JavaScript puro com tipos em `vitest.shared.d.ts`, para funcionar sem build. Convenção de onde ficam os testes e passo a passo para adicioná-los: [docs/10-desenvolvimento.md](../../docs/10-desenvolvimento.md#como-rodar-e-adicionar-testes).
+
+Os testes deste pacote (`test/`) garantem que as variantes de `tsconfig` mantêm as regras críticas (`strict`, `nodenext` e `erasableSyntaxOnly` nos serviços, `bundler` no web) e que a configuração do Vitest não muda sem querer.

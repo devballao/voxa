@@ -1,12 +1,13 @@
 import { S3Client } from "@aws-sdk/client-s3";
+import { integracaoDisponivel } from "@voxa/config/vitest";
 import { createDb } from "@voxa/db";
 import { HealthResponse } from "@voxa/protocol/http";
 import { Valkey } from "iovalkey";
 import { RoomServiceClient } from "livekit-server-sdk";
 import { afterAll, describe, expect, it } from "vitest";
-import { construirApp } from "./app.ts";
-import { type Config, carregarConfig } from "./config.ts";
-import { criarVerificacoes } from "./health/checks.ts";
+import { construirApp } from "../../src/app.ts";
+import { type Config, carregarConfig } from "../../src/config.ts";
+import { criarVerificacoes } from "../../src/health/checks.ts";
 
 /** Configuração real do .env da raiz, se houver. Sem ela, o teste é pulado. */
 function configDeDesenvolvimento(): Config | undefined {
@@ -19,7 +20,12 @@ function configDeDesenvolvimento(): Config | undefined {
 
 const config = configDeDesenvolvimento();
 
-describe.skipIf(!config)(
+const rodar = integracaoDisponivel(
+  config !== undefined,
+  "Rode `pnpm dev:infra` e `cp .env.example .env` na raiz.",
+);
+
+describe.skipIf(!rodar)(
   "GET /api/v1/health com as dependências reais (requer pnpm dev:infra)",
   () => {
     const c = config as Config;

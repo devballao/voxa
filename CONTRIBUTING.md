@@ -13,7 +13,7 @@ Obrigado pelo interesse! O Voxa é feito por voluntários, e toda contribuição
 1. Faça um fork e crie uma branch: `feat/nome-curto` ou `fix/nome-curto`.
 2. Configure o ambiente seguindo [Desenvolvimento](docs/10-desenvolvimento.md#102-ambiente-local).
 3. Faça commits no padrão [Conventional Commits](https://www.conventionalcommits.org/pt-br/), assinados com DCO (`git commit -s`).
-4. Rode `pnpm lint && pnpm test` antes de abrir o PR.
+4. Antes de abrir o PR, rode `pnpm lint && pnpm typecheck && pnpm test:unit`. Se mexeu em banco, API ou outro código com testes de integração, rode também `pnpm dev:infra && pnpm test:integration` ([como funcionam os testes](docs/10-desenvolvimento.md#como-rodar-e-adicionar-testes)).
 5. Abra o PR descrevendo **o problema**, **a solução** e **como testar**. Se mudou um fluxo, atualize o diagrama em `docs/`.
 
 ## Outras formas de ajudar

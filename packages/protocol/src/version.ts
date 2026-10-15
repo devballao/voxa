@@ -9,3 +9,6 @@ export const GATEWAY_VERSION = 1;
 
 /** Caminho do WebSocket do gateway. */
 export const GATEWAY_PATH = "/gateway";
+
+// ERRO PROPOSITAL (lint): any explícito
+export const erroDeLint = JSON.parse("1") as any;

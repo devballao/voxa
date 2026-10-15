@@ -1,0 +1,59 @@
+# Dependências
+node_modules/
+.pnpm-store/
+
+# Builds e caches
+dist/
+build/
+out/
+coverage/
+.turbo/
+.vite/
+*.tsbuildinfo
+storybook-static/
+
+# Tauri / Rust
+apps/desktop/src-tauri/target/
+apps/desktop/src-tauri/gen/
+target/
+
+# Testes
+playwright-report/
+test-results/
+blob-report/
+
+# Segredos e configuração local (versionar apenas os *.example)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+infra/compose/secrets/
+
+# Dados locais do Docker Compose (Postgres, Valkey, S3, Grafana…)
+infra/compose/data/
+infra/compose/volumes/
+
+# Backups e dumps
+*.dump
+*.sql.gz
+*.tar.gz
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+pnpm-debug.log*
+
+# Editores e sistema
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Ferramentas locais de IA / análise
+.claude/settings.local.json

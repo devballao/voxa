@@ -1,0 +1,93 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "root": true,
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true,
+    "defaultBranch": "main"
+  },
+  "files": {
+    "ignoreUnknown": true,
+    "includes": ["**", "!**/pnpm-lock.yaml", "!**/dist", "!**/coverage", "!**/.turbo"]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineEnding": "lf",
+    "lineWidth": 100
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double",
+      "semicolons": "always",
+      "trailingCommas": "all"
+    }
+  },
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended",
+      "suspicious": {
+        "noExplicitAny": "error",
+        "noConsole": { "level": "warn", "options": { "allow": ["warn", "error"] } }
+      },
+      "style": {
+        "useImportType": "error",
+        "useExportType": "error",
+        "useNodejsImportProtocol": "error"
+      }
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["apps/**", "packages/client-core/**", "packages/media/**", "packages/ui/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["@voxa/core", "@voxa/core/**", "@voxa/db", "@voxa/db/**"],
+                    "message": "Código de cliente não pode importar o backend (@voxa/core, @voxa/db). Use @voxa/protocol. Ver docs/10-desenvolvimento.md §10.1."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["services/**", "packages/core/**", "packages/db/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["@voxa/ui", "@voxa/ui/**", "@voxa/media", "@voxa/media/**"],
+                    "message": "Backend não pode importar pacotes de interface (@voxa/ui, @voxa/media). Ver docs/10-desenvolvimento.md §10.1."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

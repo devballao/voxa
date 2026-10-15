@@ -27,7 +27,24 @@ voxa/
 └── .github/workflows/       # CI/CD
 ```
 
-Ferramentas: **pnpm** (workspaces), **Turborepo** (cache de build e testes), **TypeScript** estrito, **Biome** ou ESLint + Prettier.
+Ferramentas: **pnpm** (workspaces), **Turborepo** (cache de build e testes), **TypeScript 7** estrito e **Biome** (lint e formatação).
+
+### Configuração compartilhada (`packages/config`)
+
+Cada pacote estende uma das variantes:
+
+| Variante | Para | Resolução de módulos |
+|---|---|---|
+| `tsconfig.node.json` | `services/*` | `nodenext`, com `rewriteRelativeImportExtensions` (importe `./arquivo.ts`; o build emite `./arquivo.js`) |
+| `tsconfig.library.json` | `packages/*` consumidos pelo Node e pelo web | Igual à Node, gerando também `.d.ts` |
+| `tsconfig.react.json` | `apps/web` | `bundler` (o Vite resolve), com DOM e JSX |
+
+Todas herdam de `tsconfig.base.json`: `strict`, `noUncheckedIndexedAccess`, `verbatimModuleSyntax` e `isolatedModules`.
+
+- **TypeScript 7** (o compilador reescrito em Go) **não tem a API JavaScript clássica**. Ferramentas que dependem dela (`typescript-eslint`, `tsup`/`rollup-plugin-dts` para `.d.ts`, `vite-plugin-dts`) não funcionam. Use o próprio `tsc` para gerar tipos; Vite, Vitest e `tsx` só removem os tipos e funcionam normalmente.
+- No TS 7, `types` é `[]` por padrão: declare explicitamente o que cada variante usa (`node`, `vite/client`).
+- O **Biome** roda uma vez na raiz (`pnpm lint`, `pnpm lint:fix`, `pnpm format`). O `pnpm typecheck` roda o `tsc --noEmit` de cada pacote via Turborepo.
+- As **fronteiras da regra abaixo** são verificadas pelo Biome (`noRestrictedImports` em `biome.json`): `apps/*`, `client-core`, `media` e `ui` não importam `@voxa/core`/`@voxa/db`, e o backend não importa `@voxa/ui`/`@voxa/media`.
 
 ### Dependências entre pacotes
 
@@ -46,7 +63,7 @@ flowchart BT
     desktop["apps/desktop"] --> web
 ```
 
-Regra: o código de cliente **nunca** importa `core` ou `db`; o backend nunca importa `ui`. Uma verificação no CI garante isso.
+Regra: o código de cliente **nunca** importa `core` ou `db`; o backend nunca importa `ui` ou `media`. O lint (Biome) garante isso.
 
 ## 10.2 Ambiente local
 

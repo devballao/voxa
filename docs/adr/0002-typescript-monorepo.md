@@ -26,3 +26,4 @@ O projeto depende de pessoas voluntárias. A barreira de entrada precisa ser bai
 - Um único conjunto de ferramentas; refatorações do protocolo quebram a compilação dos dois lados.
 - Se o gateway virar gargalo, ele pode ser reescrito (ex.: Go ou Elixir) **sem mudar o protocolo**, porque o contrato está em `@voxa/protocol` e a comunicação interna é via Valkey.
 - A mídia pesada não roda em Node: fica no LiveKit ([0003](0003-livekit-como-sfu.md)).
+- **TypeScript 7** (compilador nativo) é rápido, mas não expõe a API JavaScript clássica. Por isso o projeto usa o **Biome** para lint e formatação, em vez de `typescript-eslint`, e o próprio `tsc` para gerar `.d.ts`, em vez de `tsup`/`rollup-plugin-dts`.

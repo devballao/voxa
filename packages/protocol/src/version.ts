@@ -9,6 +9,3 @@ export const GATEWAY_VERSION = 1;
 
 /** Caminho do WebSocket do gateway. */
 export const GATEWAY_PATH = "/gateway";
-
-// ERRO PROPOSITAL (tipo): string atribuída a number
-export const erroDeTipo: number = "texto";

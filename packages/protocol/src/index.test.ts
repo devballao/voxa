@@ -5,7 +5,7 @@ import * as raiz from "./index.ts";
 
 describe("API pública de @voxa/protocol", () => {
   it("expõe as versões e caminhos da API e do gateway", () => {
-    expect(raiz.API_VERSION).toBe(1);
+    expect(raiz.API_VERSION).toBe(999); // ERRO PROPOSITAL
     expect(raiz.API_BASE_PATH).toBe("/api/v1");
     expect(raiz.GATEWAY_VERSION).toBe(1);
     expect(raiz.GATEWAY_PATH).toBe("/gateway");

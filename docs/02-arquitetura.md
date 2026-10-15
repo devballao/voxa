@@ -162,7 +162,7 @@ Detalhes e topologias em [Infraestrutura](03-infraestrutura.md).
 | Camada | Escolha | Licença | ADR |
 |---|---|---|---|
 | Linguagem (backend e cliente) | TypeScript | Apache-2.0 | [0002](adr/0002-typescript-monorepo.md) |
-| API | Node.js 22 LTS + Fastify | MIT | [0002](adr/0002-typescript-monorepo.md) |
+| API | Node.js 24 LTS + Fastify | MIT | [0002](adr/0002-typescript-monorepo.md) |
 | Gateway | Node.js + `ws` (ou uWebSockets.js se precisar) | MIT / Apache-2.0 | [0002](adr/0002-typescript-monorepo.md) |
 | Mídia | LiveKit Server | Apache-2.0 | [0003](adr/0003-livekit-como-sfu.md) |
 | Banco | PostgreSQL 17 | PostgreSQL | [0004](adr/0004-postgres-e-valkey.md) |

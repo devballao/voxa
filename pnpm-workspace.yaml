@@ -1,0 +1,7 @@
+packages:
+  - "apps/*"
+  - "services/*"
+  - "packages/*"
+
+# Falha a instalação se a versão do Node não atender a "engines" do package.json.
+engineStrict: true

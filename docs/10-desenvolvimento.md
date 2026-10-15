@@ -50,7 +50,7 @@ Regra: o código de cliente **nunca** importa `core` ou `db`; o backend nunca im
 
 ## 10.2 Ambiente local
 
-Pré-requisitos: Node.js 22 LTS, pnpm 9+, Docker; Rust stable só para o desktop.
+Pré-requisitos: Node.js 24 LTS (ver `.nvmrc`), pnpm 12 (via `corepack enable`), Docker; Rust stable só para o desktop.
 
 ```bash
 git clone https://github.com/devballao/voxa.git && cd voxa

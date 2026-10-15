@@ -9,7 +9,7 @@ O projeto depende de pessoas voluntárias. A barreira de entrada precisa ser bai
 
 ## Decisão
 
-- TypeScript estrito em backend (Node.js 22 LTS + Fastify) e cliente (React).
+- TypeScript estrito em backend (Node.js 24 LTS + Fastify) e cliente (React).
 - Monorepo com pnpm workspaces + Turborepo.
 - Esquemas **Zod** em `@voxa/protocol`, que são a fonte única da verdade para validação, tipos e OpenAPI.
 

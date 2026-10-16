@@ -23,6 +23,13 @@
     "storage": "32gb"
   },
 
+  // Sem isto, o Corepack pergunta "Do you want to continue? [Y/n]" antes de baixar o pnpm.
+  // No Codespaces o onCreateCommand roda num terminal sem ninguém para responder, e a
+  // criação fica carregando para sempre.
+  "containerEnv": {
+    "COREPACK_ENABLE_DOWNLOAD_PROMPT": "0"
+  },
+
   // Roda uma vez, ao criar o contêiner (pode ser feito num prebuild do Codespaces).
   "onCreateCommand": "corepack enable && pnpm install --frozen-lockfile",
   // Precisa do Docker no ar: sobe a infraestrutura e aplica as migrações.

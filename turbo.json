@@ -11,7 +11,22 @@
     "dev": {
       "dependsOn": ["^build"],
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "passThroughEnv": [
+        "NODE_ENV",
+        "LOG_LEVEL",
+        "API_*",
+        "GATEWAY_*",
+        "DATABASE_URL",
+        "VALKEY_URL",
+        "S3_*",
+        "LIVEKIT_*",
+        "SMTP_*",
+        "WORKER_NAME",
+        "VITE_*",
+        "GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN",
+        "CODESPACE_NAME"
+      ]
     },
     "lint": {},
     "typecheck": {

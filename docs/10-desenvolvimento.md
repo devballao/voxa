@@ -67,22 +67,45 @@ Regra: o código de cliente **nunca** importa `core` ou `db`; o backend nunca im
 
 ## 10.2 Ambiente local
 
-Pré-requisitos: Node.js 24 LTS (ver `.nvmrc`), pnpm 12 (via `corepack enable`), Docker; Rust stable só para o desktop.
+**Pré-requisitos:**
+- **Node.js 24 LTS**: veja o `.nvmrc`; com nvm, `nvm install && nvm use`.
+- **pnpm 12**: `corepack enable` (o pnpm troca sozinho para a versão do `packageManager`).
+- **Docker** com Compose v2.
+- **Rust stable**: só para o app desktop (Fase 2).
 
 ```bash
 git clone https://github.com/devballao/voxa.git && cd voxa
 pnpm install
-cp .env.example .env  # valores apenas de desenvolvimento
-pnpm dev:infra        # sobe postgres, valkey, s3 (garage), livekit e mailpit via compose
-pnpm db:migrate
-pnpm db:seed          # servidor de exemplo + 3 contas de teste
-pnpm dev              # api :3000, gateway :4000, web :5173 com hot reload
+pnpm bootstrap   # só na primeira vez
+pnpm dev         # todo dia
 ```
 
-- Portas, credenciais de dev e solução de problemas da infraestrutura: [`infra/compose/README.md`](../infra/compose/README.md). Para parar: `pnpm dev:infra:down`; para apagar os dados: `pnpm dev:infra:reset`.
+Abra **http://localhost:5173**: a página "Status do ambiente" deve mostrar **✓ Tudo funcionando**.
+
+| Comando | O que faz |
+|---|---|
+| `pnpm bootstrap` | Confere Node e Docker, cria o `.env` a partir do `.env.example` (se não existir), sobe a infraestrutura e aplica as migrações. Pode ser repetido sem problema |
+| `pnpm dev` | Confere `.env`, portas e infraestrutura, e **sobe a infraestrutura sozinho** se ela estiver parada (por exemplo, depois de reiniciar o computador). Então roda, com hot reload: **API** (`:3000`), **gateway** (`:4000`), **worker**, **app web** (`:5173`) e o *watch* de `@voxa/protocol` e `@voxa/db`. Cada linha da saída vem com o nome do serviço. **Ctrl+C** encerra tudo de forma limpa |
+| `pnpm dev:infra:down` | Para a infraestrutura (mantém os dados) |
+| `pnpm dev:infra:reset` | Para a infraestrutura e apaga os dados |
+
+> O nome é `bootstrap` porque `pnpm setup` é um comando nativo do pnpm (configura o próprio pnpm).
+
+**Tempo medido** do `git clone` até a página verde, numa máquina sem imagens Docker nem cache do pnpm (GitHub Codespaces, 2 vCPU): veja o PR da #11. Meta: menos de 10 minutos.
+
+**Problemas comuns.** Os scripts explicam o que fazer em cada caso:
+
+| Mensagem | Solução |
+|---|---|
+| `Node X não atende a ">=24.11.0 <25"` | `nvm install && nvm use` (ou fnm, volta, asdf) |
+| `Docker não encontrado` / `não está respondendo` | Instale ou inicie o Docker |
+| `Arquivo .env não encontrado` | `pnpm bootstrap` |
+| `Portas já em uso` | Outro `pnpm dev` aberto, ou um Postgres/Redis local. Veja [infra/compose/README.md](../infra/compose/README.md#porta-ocupada-address-already-in-use) |
+
+- Portas, credenciais de dev e mais soluções de problemas da infraestrutura: [`infra/compose/README.md`](../infra/compose/README.md).
 - E-mails de desenvolvimento aparecem no **Mailpit** (`http://localhost:8025`).
-- Para testar voz com duas pessoas: abra uma janela anônima e entre com outra conta de teste.
-- Também há um `devcontainer.json` para Codespaces e VS Code.
+- **GitHub Codespaces:** abra a porta 5173 pela aba *Ports*. O Vite já aceita o domínio `*.app.github.dev`.
+- Um `devcontainer.json` para Codespaces e VS Code chega na #13.
 
 ## 10.3 Testes
 

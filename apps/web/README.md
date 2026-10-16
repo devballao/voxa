@@ -4,13 +4,14 @@ App web do Voxa (React 19 + Vite 8). Por enquanto (Milestone 0), tem uma única 
 
 ## Rodando
 
-Com `pnpm dev:infra`, a API (`pnpm --filter @voxa/api dev`) e o gateway (`pnpm --filter @voxa/gateway dev`) no ar:
+Na raiz do repositório:
 
 ```bash
-pnpm --filter @voxa/web dev     # http://localhost:5173
+pnpm bootstrap   # primeira vez
+pnpm dev         # sobe API, gateway, worker e este app → http://localhost:5173
 ```
 
-> A #11 junta tudo num `pnpm dev` só.
+Para rodar só o app web (com a API e o gateway já no ar): `pnpm --filter @voxa/web dev`.
 
 Em desenvolvimento, **o navegador fala só com o Vite**, que repassa `/api` → `127.0.0.1:3000` e `/gateway` → `127.0.0.1:4000` (WebSocket). Por isso as URLs do app são relativas e não há CORS. Para apontar o proxy para outro lugar: `VITE_DEV_API_TARGET` e `VITE_DEV_GATEWAY_TARGET`. Em builds servidos fora do Vite, `VITE_API_URL` e `VITE_GATEWAY_URL` (em `apps/web/.env.local`) definem as URLs absolutas.
 

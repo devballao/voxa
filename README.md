@@ -30,6 +30,18 @@
 | [Roadmap](docs/11-roadmap.md) | Fases do projeto |
 | [Decisões (ADRs)](docs/adr/README.md) | Registro das decisões de arquitetura |
 
+## Rodando localmente
+
+Requisitos: Node.js 24, pnpm 12 (`corepack enable`) e Docker.
+
+```bash
+pnpm install
+pnpm bootstrap   # primeira vez: .env, infraestrutura e migrações
+pnpm dev         # API, gateway, worker e app web → http://localhost:5173
+```
+
+Detalhes em [Desenvolvimento §10.2](docs/10-desenvolvimento.md#102-ambiente-local).
+
 ## Contribuindo
 
 Leia o [guia de contribuição](CONTRIBUTING.md). Toda ajuda é bem-vinda — código, design, tradução, documentação e testes.

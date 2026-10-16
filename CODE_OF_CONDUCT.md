@@ -36,7 +36,7 @@ Este código de conduta se aplica a todos os espaços da comunidade e também qu
 
 ## Aplicação
 
-Casos de comportamento abusivo, de assédio ou inaceitável podem ser relatados à mantenedoria responsável pela aplicação pelo e-mail **conduta@voxa.example**. Todas as denúncias serão analisadas e investigadas de forma rápida e justa.
+Casos de comportamento abusivo, de assédio ou inaceitável podem ser relatados à mantenedoria responsável pela aplicação pelo e-mail **voxa.projeto@gmail.com**. Todas as denúncias serão analisadas e investigadas de forma rápida e justa.
 
 A mantenedoria se compromete a respeitar a privacidade e a segurança de quem relatar qualquer incidente.
 

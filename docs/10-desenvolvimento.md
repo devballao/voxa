@@ -91,7 +91,15 @@ Abra **http://localhost:5173**: a página "Status do ambiente" deve mostrar **�
 
 > O nome é `bootstrap` porque `pnpm setup` é um comando nativo do pnpm (configura o próprio pnpm).
 
-**Tempo medido** do `git clone` até a página verde, numa máquina sem imagens Docker nem cache do pnpm (GitHub Codespaces, 2 vCPU): veja o PR da #11. Meta: menos de 10 minutos.
+**Tempo medido** (2026-10-16), do `git clone` até a página verde, sem imagens Docker nem cache do pnpm, num GitHub Codespace de 2 vCPU: **51 s**.
+
+| Etapa | Tempo |
+|---|---|
+| `pnpm install` (251 pacotes, 339 MB) | 4 s |
+| `pnpm bootstrap` (inclui baixar as 5 imagens Docker) | 35 s |
+| `pnpm dev` até a página verde | 12 s |
+
+Esse número vale para a rede de um datacenter. Numa conexão doméstica, os downloads (pacotes e imagens) devem levar alguns minutos. A meta é ficar abaixo de 10 minutos.
 
 **Problemas comuns.** Os scripts explicam o que fazer em cada caso:
 

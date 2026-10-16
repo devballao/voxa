@@ -4,7 +4,7 @@
 
 | Plataforma | Tecnologia | Fase |
 |---|---|---|
-| **Web** | React 19 + Vite, SPA servida pelo Caddy | 1 |
+| **Web** | React 19 + Vite + TanStack Router, SPA servida pelo Caddy | 1 |
 | **Desktop** (Linux, Windows, macOS) | Tauri 2, que embala o mesmo app web e adiciona recursos nativos | 2 |
 | **Mobile** (Android, iOS) | Proposta: React Native compartilhando `@voxa/client-core`; alternativa: Capacitor | 4 |
 

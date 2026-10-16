@@ -1,7 +1,8 @@
 # 0004 — PostgreSQL como fonte da verdade e Valkey para estado efêmero
 
-- Status: Proposto
-- Data: 2026-10-15
+- Status: **Aceito**
+- Data: 2026-10-15 (proposto) · 2026-10-16 (aceito)
+- Implementado: Postgres 17 com Drizzle e migrações ([#7](https://github.com/devballao/voxa/issues/7)); Valkey 8 com pub/sub no gateway e streams no worker ([#9](https://github.com/devballao/voxa/issues/9)) e leases do Snowflake ([#34](https://github.com/devballao/voxa/issues/34)). O particionamento de `messages` e o outbox chegam com as mensagens e as contas, no MVP.
 
 ## Contexto
 

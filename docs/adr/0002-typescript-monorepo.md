@@ -1,7 +1,8 @@
 # 0002 — TypeScript em monorepo para backend e cliente
 
-- Status: Proposto
-- Data: 2026-10-15
+- Status: **Aceito**
+- Data: 2026-10-15 (proposto) · 2026-10-16 (aceito)
+- Implementado no Milestone 0: monorepo ([#2](https://github.com/devballao/voxa/issues/2)), TypeScript estrito e Biome ([#3](https://github.com/devballao/voxa/issues/3)), `@voxa/protocol` ([#6](https://github.com/devballao/voxa/issues/6)), API em Fastify ([#8](https://github.com/devballao/voxa/issues/8)).
 
 ## Contexto
 

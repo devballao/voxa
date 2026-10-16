@@ -2,6 +2,7 @@
 
 - Status: Proposto
 - Data: 2026-10-15
+- Situação (2026-10-16): o LiveKit já roda no ambiente de desenvolvimento e o `/health` o verifica ([#5](https://github.com/devballao/voxa/issues/5)), mas a voz ainda não foi implementada. A decisão será confirmada no **Milestone 5 (anexos e voz)**, com a primeira sala de voz funcionando.
 
 ## Contexto
 

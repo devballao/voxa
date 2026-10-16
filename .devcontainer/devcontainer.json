@@ -34,7 +34,9 @@
   },
 
   // Roda uma vez, ao criar o contêiner (pode ser feito num prebuild do Codespaces).
-  "onCreateCommand": "corepack enable && pnpm install --frozen-lockfile",
+  // O Chromium do Playwright (pnpm demo e testes E2E) precisa de bibliotecas do sistema
+  // que a imagem base não traz: --with-deps as instala (com sudo, sem senha no contêiner).
+  "onCreateCommand": "corepack enable && pnpm install --frozen-lockfile && pnpm --filter @voxa/web exec playwright install --with-deps chromium",
   // Precisa do Docker no ar: sobe a infraestrutura e aplica as migrações.
   "postCreateCommand": "pnpm bootstrap",
 

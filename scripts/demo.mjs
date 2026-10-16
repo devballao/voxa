@@ -43,11 +43,61 @@ async function ambienteNoAr() {
   }
 }
 
+// Navegador do Playwright: baixa na primeira vez e confere que abre, antes de subir o ambiente.
+const PLAYWRIGHT = ["--filter", "@voxa/web", "exec", "playwright"];
+const COM_DEPENDENCIAS = "pnpm --filter @voxa/web exec playwright install --with-deps chromium";
+if (
+  spawnSync("pnpm", [...PLAYWRIGHT, "install", "chromium"], { cwd: RAIZ, stdio: "inherit" })
+    .status !== 0
+) {
+  falhar(`Não foi possível baixar o Chromium do Playwright. Tente: ${COM_DEPENDENCIAS}`);
+}
+const teste = spawnSync(
+  "pnpm",
+  [
+    "--filter",
+    "@voxa/web",
+    "exec",
+    "node",
+    "--input-type=module",
+    "-e",
+    'import { chromium } from "@playwright/test"; await (await chromium.launch()).close();',
+  ],
+  { cwd: RAIZ, encoding: "utf8" },
+);
+if (teste.status !== 0) {
+  const saida = `${teste.stdout}${teste.stderr}`;
+  const faltaBiblioteca = /error while loading shared libraries|missing dependencies/i.test(saida);
+  falhar(
+    faltaBiblioteca
+      ? "O Chromium não abre: faltam bibliotecas do sistema. Instale uma vez (usa sudo):\n" +
+          `  ${COM_DEPENDENCIAS}`
+      : `O Chromium do Playwright não abriu:\n${saida.trim().split("\n").slice(-5).join("\n")}`,
+  );
+}
+ok("Chromium do Playwright pronto");
+
+/** `true` se algo responde na porta do app web (mesmo que a API por trás esteja fora). */
+async function appResponde() {
+  try {
+    await fetch(URL_APP, { signal: AbortSignal.timeout(3_000) });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 // Reaproveita um `pnpm dev` já rodando; senão, sobe um e o encerra no fim.
 let dev;
 if (await ambienteNoAr()) {
   ok("Ambiente já está no ar (pnpm dev): usando-o");
 } else {
+  if (await appResponde()) {
+    falhar(
+      `O app web responde em ${URL_APP}, mas a API não (${ultimoMotivo}).\n` +
+        "  Há um pnpm dev antigo ou com problema rodando: encerre-o (Ctrl+C) e rode pnpm demo de novo.",
+    );
+  }
   console.log("→ Subindo o ambiente (pnpm dev)…");
   dev = spawn("node", [join(RAIZ, "scripts", "dev.mjs")], {
     cwd: RAIZ,
@@ -80,20 +130,6 @@ for (const sinal of ["SIGINT", "SIGTERM"]) {
     encerrarDev();
     process.exit(1);
   });
-}
-
-// Navegador do Playwright (só baixa na primeira vez).
-const navegador = spawnSync(
-  "pnpm",
-  ["--filter", "@voxa/web", "exec", "playwright", "install", "chromium"],
-  { cwd: RAIZ, stdio: "inherit" },
-);
-if (navegador.status !== 0) {
-  encerrarDev();
-  falhar(
-    "Não foi possível instalar o Chromium do Playwright.\n" +
-      "  No Linux, talvez faltem bibliotecas: pnpm --filter @voxa/web exec playwright install --with-deps chromium",
-  );
 }
 
 console.log("\n→ Rodando os cenários (Playwright)…");

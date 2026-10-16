@@ -74,14 +74,24 @@ export function existeEnv() {
   return existsSync(ENV);
 }
 
-/** Resolve true se ninguém está escutando na porta (em 127.0.0.1). */
-export function portaLivre(porta) {
+/** Tenta ocupar a porta num endereço: `false` só se alguém já escuta nela. */
+function livreEm(porta, endereco) {
   return new Promise((resolver) => {
     const s = createServer();
-    s.once("error", () => resolver(false));
+    // EADDRINUSE: ocupada. Outros erros (ex.: máquina sem IPv6) não contam como ocupada.
+    s.once("error", (erro) => resolver(erro.code !== "EADDRINUSE"));
     s.once("listening", () => s.close(() => resolver(true)));
-    s.listen(porta, "127.0.0.1");
+    s.listen(porta, endereco);
   });
+}
+
+/**
+ * Resolve true se ninguém está escutando na porta, em IPv4 **e** IPv6.
+ * O Vite escuta em `localhost`, que em alguns sistemas (Codespaces, runners do GitHub)
+ * é o `::1`: testar só 127.0.0.1 deixaria passar um `pnpm dev` antigo ainda aberto.
+ */
+export async function portaLivre(porta) {
+  return (await livreEm(porta, "127.0.0.1")) && (await livreEm(porta, "::1"));
 }
 
 /** Roda `pnpm <args>` mostrando a saída; encerra com erro se falhar. */

@@ -1,0 +1,13 @@
+# O contexto de build é o repositório: deixa de fora o que é gerado ou local.
+.git
+**/node_modules
+**/dist
+**/.turbo
+**/coverage
+**/test-results
+**/playwright-report
+demo/
+.env
+.env.*
+!.env.example
+*.log

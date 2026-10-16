@@ -174,6 +174,22 @@ docker compose exec api voxa-admin create-admin --email voce@exemplo.org
 
 Requisitos: Linux com Docker 24+, IP público, portas da seção 3.2 abertas, domínio com DNS configurado.
 
+### Imagens Docker
+
+O CI publica uma imagem por serviço no GitHub Container Registry a cada merge na `main` ([`infra/docker`](../infra/docker/README.md)):
+
+| Imagem | Conteúdo | Saúde (`HEALTHCHECK`) |
+|---|---|---|
+| `ghcr.io/devballao/voxa-api` | API (Node 24, Alpine) e o comando de migrações | `GET /api/v1/health` |
+| `ghcr.io/devballao/voxa-gateway` | Gateway WebSocket | `GET /health` |
+| `ghcr.io/devballao/voxa-worker` | Consumidores de filas | processo ativo |
+| `ghcr.io/devballao/voxa-web` | App web estático servido pelo Caddy (porta 80) | `GET /` |
+
+- **Tags:** `sha-<commit>` (fixa, para voltar a uma versão exata) e `main` (a mais recente).
+- **Arquiteturas:** `linux/amd64` e `linux/arm64` (servidores ARM, como o Oracle Always Free).
+- Os serviços rodam como o usuário `node`, sem privilégios, e escutam em `0.0.0.0` dentro do contêiner.
+- Migrações: `docker run --rm --env-file .env ghcr.io/devballao/voxa-api:main node node_modules/@voxa/db/dist/cli/migrate.js`.
+
 ### Atualização
 
 ```bash

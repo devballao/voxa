@@ -13,7 +13,10 @@
       "pnpmVersion": "none"
     },
     // Docker dentro do contêiner: a infraestrutura de dev roda com Docker Compose.
-    "ghcr.io/devcontainers/features/docker-in-docker:4.1.3": {}
+    "ghcr.io/devcontainers/features/docker-in-docker:4.1.3": {},
+    // Comando `claude` no terminal (para `claude remote-control`) e a extensão do VS Code.
+    // Fica na imagem: sobrevive a rebuilds e vem pronto em todo Codespace novo.
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1.0.5": {}
   },
 
   // Máquina mínima testada (Codespace de 2 vCPU e 8 GB).

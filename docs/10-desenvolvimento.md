@@ -115,7 +115,7 @@ Esse número vale para a rede de um datacenter. Numa conexão doméstica, os dow
 
 ### Dev Container (GitHub Codespaces ou VS Code)
 
-O repositório tem um [`.devcontainer/devcontainer.json`](../.devcontainer/devcontainer.json) que prepara tudo sozinho: Ubuntu 24.04, Node 24 e pnpm (via corepack), Docker dentro do contêiner e as extensões recomendadas.
+O repositório tem um [`.devcontainer/devcontainer.json`](../.devcontainer/devcontainer.json) que prepara tudo sozinho: Ubuntu 24.04, Node 24 e pnpm (via corepack), Docker dentro do contêiner, o Claude Code (CLI e extensão) e as extensões recomendadas.
 
 - **Codespaces:** botão **Abrir no GitHub Codespaces** no README, ou *Code → Codespaces → Create codespace on main*.
 - **VS Code local:** com a extensão *Dev Containers*, rode *Dev Containers: Reopen in Container*.
@@ -129,6 +129,8 @@ pnpm dev
 A porta **5173** (app web) é anunciada com uma notificação. As demais (API 3000, gateway 4000, LiveKit 7880, Mailpit 8025, S3 3900) ficam na aba *Ports*, com rótulos. O Vite já aceita o domínio `*.app.github.dev`.
 
 **Limites do Codespaces para mídia:** o Codespaces encaminha só portas **TCP**. A mídia de voz e vídeo (UDP, porta `7882`) não chega de fora. Testes entre abas do mesmo navegador devem funcionar via ICE/TCP (porta `7881`), o que ainda será validado quando houver cliente de voz, no MVP. Para testes com vários dispositivos, rode o ambiente localmente. Detalhes em [infra/compose/README.md](../infra/compose/README.md#voz-e-vídeo-no-github-codespaces).
+
+**Claude Code no Codespace:** o histórico das conversas fica em `~/.claude`, fora de `/workspaces`, e se perde quando o Codespace é recriado ou excluído. Para manter as conversas na sua conta (visíveis no app do Claude e em claude.ai/code), rode na pasta do projeto `claude remote-control --name "voxa codespace"` e deixe o terminal aberto. O [`CLAUDE.md`](../CLAUDE.md) da raiz dá a qualquer sessão nova o contexto e as convenções do projeto.
 
 ## 10.3 Testes
 

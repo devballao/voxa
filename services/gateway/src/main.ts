@@ -1,4 +1,6 @@
 // Ponto de entrada do gateway: carrega a configuração, conecta ao Valkey e abre a porta.
+import { hostname } from "node:os";
+import { LeaseDeWorker } from "@voxa/core";
 import { Valkey } from "iovalkey";
 import { pino } from "pino";
 import { carregarConfig, ErroDeConfiguracao } from "./config.ts";
@@ -40,6 +42,10 @@ for (const conexao of [valkey, assinante]) {
 }
 await Promise.allSettled([valkey.connect(), assinante.connect()]);
 
+// Worker de IDs (Snowflake): reservado no Valkey e renovado em segundo plano.
+const lease = new LeaseDeWorker({ valkey, dono: `gateway-${hostname()}-${process.pid}`, logger });
+await lease.iniciar();
+
 const gateway = criarGateway({
   heartbeatIntervalMs: config.GATEWAY_HEARTBEAT_INTERVAL_MS,
   logger,
@@ -60,6 +66,7 @@ for (const sinal of ["SIGTERM", "SIGINT"] as const) {
     logger.info({ sinal, conexoes: gateway.conexoes }, "encerrando: avisando clientes (RECONNECT)");
     const forcar = setTimeout(() => process.exit(1), 10_000).unref();
     await gateway.close();
+    await lease.liberar();
     await Promise.allSettled([valkey.quit(), assinante.quit()]);
     clearTimeout(forcar);
     process.exit(0);

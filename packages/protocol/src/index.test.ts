@@ -11,6 +11,10 @@ describe("API pública de @voxa/protocol", () => {
     expect(raiz.GATEWAY_PATH).toBe("/gateway");
   });
 
+  it("expõe o esquema de ID (Snowflake)", () => {
+    expect(raiz.Snowflake.parse("123")).toBe("123");
+  });
+
   it("@voxa/protocol/http exporta os esquemas HTTP", () => {
     expect(Object.keys(http).sort()).toEqual([
       "ErrorCode",

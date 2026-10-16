@@ -1,5 +1,6 @@
 // Ponto de entrada do worker: conecta ao Valkey e consome as filas.
 import { hostname } from "node:os";
+import { LeaseDeWorker } from "@voxa/core";
 import { Valkey } from "iovalkey";
 import { pino } from "pino";
 import { carregarConfig, ErroDeConfiguracao } from "./config.ts";
@@ -36,6 +37,11 @@ const logger = pino({
 const valkey = new Valkey(config.VALKEY_URL, { maxRetriesPerRequest: null });
 valkey.on("error", (erro) => logger.warn({ motivo: erro.message }, "valkey indisponível"));
 
+// Worker de IDs (Snowflake). Sem await: com a fila offline do Valkey, os comandos
+// esperam a conexão, e o consumo das filas não deve esperar por isso.
+const lease = new LeaseDeWorker({ valkey, dono: `worker-${hostname()}-${process.pid}`, logger });
+void lease.iniciar();
+
 const consumidores = [
   iniciarConsumidor({
     valkey,
@@ -58,6 +64,7 @@ for (const sinal of ["SIGTERM", "SIGINT"] as const) {
     const forcar = setTimeout(() => process.exit(1), 10_000).unref();
     for (const c of consumidores) c.parar();
     await Promise.allSettled(consumidores.map((c) => c.concluido));
+    await lease.liberar();
     await valkey.quit().catch(() => {});
     clearTimeout(forcar);
     process.exit(0);

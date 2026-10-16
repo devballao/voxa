@@ -55,6 +55,7 @@ Todas as respostas de erro seguem o formato padrão `{ "error": { "code", "messa
 
 | Situação | HTTP | `code` |
 |---|---|---|
+| `VoxaError` lançado por um serviço de `@voxa/core` | o do código ([tabela](../../packages/core/README.md#erros-de-domínio-voxaerror)) | o do erro, com os `details` do domínio |
 | Corpo, parâmetros ou query fora do esquema Zod | 400 | `VALIDATION_FAILED` (com `details.issues`) |
 | Rota inexistente | 404 | `NOT_FOUND` |
 | Limite de requisições | 429 | `RATE_LIMITED` |

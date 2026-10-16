@@ -10,7 +10,9 @@ import { join } from "node:path";
 import { gerarResumo, milestoneAtual, repositorioDoPacote } from "./lib/resumo-demo.mjs";
 import { falhar, ok, RAIZ, verificarNode } from "./lib/verificacoes.mjs";
 
-const URL_APP = "http://127.0.0.1:5173";
+// "localhost", não 127.0.0.1: o Vite escuta em localhost, que em algumas máquinas
+// (como os runners do GitHub) resolve para o IPv6 ::1. O fetch e o Chromium tentam os dois.
+const URL_APP = "http://localhost:5173";
 const ESPERA_MAXIMA_MS = 180_000;
 
 verificarNode();
@@ -27,12 +29,16 @@ rmSync(pasta, { recursive: true, force: true });
 mkdirSync(pasta, { recursive: true });
 ok(`Demonstração do milestone ${numero} em demo/milestone-${numero}/`);
 
+let ultimoMotivo = "sem resposta";
+
 /** `true` quando o app web responde e a API (pelo proxy do Vite) está saudável. */
 async function ambienteNoAr() {
   try {
     const res = await fetch(`${URL_APP}/api/v1/health`, { signal: AbortSignal.timeout(3_000) });
+    ultimoMotivo = `HTTP ${res.status} em /api/v1/health`;
     return res.ok;
-  } catch {
+  } catch (erro) {
+    ultimoMotivo = erro.cause?.code ?? erro.message;
     return false;
   }
 }
@@ -53,7 +59,9 @@ if (await ambienteNoAr()) {
     if (dev.exitCode !== null) falhar("O pnpm dev encerrou antes de o ambiente ficar pronto.");
     if (Date.now() - inicio > ESPERA_MAXIMA_MS) {
       encerrarDev();
-      falhar(`O ambiente não ficou pronto em ${ESPERA_MAXIMA_MS / 1000} s.`);
+      falhar(
+        `O ambiente não ficou pronto em ${ESPERA_MAXIMA_MS / 1000} s (${URL_APP}: ${ultimoMotivo}).`,
+      );
     }
     await new Promise((r) => setTimeout(r, 1_000));
   }

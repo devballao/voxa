@@ -13,7 +13,7 @@ export default defineConfig({
   forbidOnly: Boolean(process.env.CI),
   reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : "list",
   use: {
-    baseURL: process.env.VOXA_E2E_URL ?? "http://127.0.0.1:5173",
+    baseURL: process.env.VOXA_E2E_URL ?? "http://localhost:5173",
     locale: "pt-BR",
     timezoneId: "America/Sao_Paulo",
     trace: "retain-on-failure",

@@ -168,7 +168,7 @@ Detalhes e topologias em [Infraestrutura](03-infraestrutura.md).
 | Banco | PostgreSQL 17 | PostgreSQL | [0004](adr/0004-postgres-e-valkey.md) |
 | Cache/pub-sub | Valkey 8 | BSD-3 | [0004](adr/0004-postgres-e-valkey.md) |
 | Objetos | Qualquer S3 (Garage, SeaweedFS, MinIO, provedor) | — | [0005](adr/0005-armazenamento-s3.md) |
-| Web | React 19 + Vite | MIT | [0006](adr/0006-cliente-react-tauri.md) |
+| Web | React 19 + Vite + TanStack Router | MIT | [0006](adr/0006-cliente-react-tauri.md) |
 | Desktop | Tauri 2 | MIT / Apache-2.0 | [0006](adr/0006-cliente-react-tauri.md) |
 | Proxy | Caddy | Apache-2.0 | [0007](adr/0007-implantacao.md) |
 | Observabilidade | Prometheus, Grafana, Loki, OpenTelemetry | Apache-2.0 / AGPL-3.0 | [0007](adr/0007-implantacao.md) |

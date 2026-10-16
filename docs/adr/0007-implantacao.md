@@ -2,6 +2,7 @@
 
 - Status: Proposto
 - Data: 2026-10-15
+- Situação (2026-10-16): hoje só existe o Compose de desenvolvimento ([#5](https://github.com/devballao/voxa/issues/5)). O Compose de produção será validado no **Milestone 2**, na primeira instância do projeto (Oracle Cloud *Always Free*, servidor ARM, custo zero), com deploy a cada merge na `main`.
 
 ## Contexto
 

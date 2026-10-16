@@ -1,7 +1,8 @@
 # 0005 — Armazenamento de arquivos compatível com S3
 
-- Status: Proposto
-- Data: 2026-10-15
+- Status: **Aceito**
+- Data: 2026-10-15 (proposto) · 2026-10-16 (aceito)
+- Implementado: Garage no ambiente de desenvolvimento e verificação do S3 no `/health` ([#5](https://github.com/devballao/voxa/issues/5), [#8](https://github.com/devballao/voxa/issues/8)). Uploads assinados chegam com os anexos, no Milestone 5.
 
 ## Contexto
 

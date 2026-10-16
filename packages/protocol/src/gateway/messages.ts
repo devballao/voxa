@@ -24,8 +24,19 @@ export const HeartbeatAckMessage = z.object({
 });
 export type HeartbeatAckMessage = z.infer<typeof HeartbeatAckMessage>;
 
+/** O servidor vai desligar: o cliente deve reconectar (e, no futuro, fazer RESUME). */
+export const ReconnectMessage = z.object({
+  op: z.literal("RECONNECT"),
+  d: z.null(),
+});
+export type ReconnectMessage = z.infer<typeof ReconnectMessage>;
+
 /** Mensagens que o servidor envia (cresce a cada marco). */
-export const ServerMessage = z.discriminatedUnion("op", [HelloMessage, HeartbeatAckMessage]);
+export const ServerMessage = z.discriminatedUnion("op", [
+  HelloMessage,
+  HeartbeatAckMessage,
+  ReconnectMessage,
+]);
 export type ServerMessage = z.infer<typeof ServerMessage>;
 
 /** Mensagens que o cliente envia (cresce a cada marco). */

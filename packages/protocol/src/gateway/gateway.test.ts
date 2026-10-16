@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { GatewayCloseCode } from "./close-codes.ts";
 import { GatewayEnvelope } from "./envelope.ts";
 import { ClientMessage, HelloMessage, ServerMessage } from "./messages.ts";
 
@@ -29,6 +30,17 @@ describe("mensagens do gateway", () => {
     const ack = ServerMessage.parse({ op: "HEARTBEAT_ACK", d: null });
     expect(ack.op).toBe("HEARTBEAT_ACK");
     expect(ServerMessage.safeParse({ op: "HEARTBEAT", d: 1 }).success).toBe(false);
+  });
+
+  it("ServerMessage aceita RECONNECT, enviado antes de o gateway desligar", () => {
+    expect(ServerMessage.parse({ op: "RECONNECT", d: null })).toEqual({ op: "RECONNECT", d: null });
+  });
+
+  it("códigos de fechamento ficam na faixa de aplicação (4000–4999)", () => {
+    for (const codigo of Object.values(GatewayCloseCode)) {
+      expect(codigo).toBeGreaterThanOrEqual(4000);
+      expect(codigo).toBeLessThan(5000);
+    }
   });
 
   it("ClientMessage aceita HEARTBEAT com a última sequência ou null", () => {

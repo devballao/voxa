@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "description": "Configuração compartilhada do TypeScript e do Vitest para o monorepo do Voxa",
+  "license": "Apache-2.0",
   "type": "module",
   "files": [
     "tsconfig.*.json",

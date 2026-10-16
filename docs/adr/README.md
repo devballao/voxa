@@ -4,7 +4,7 @@ Cada ADR registra **uma** decisão: o contexto, a escolha e as consequências. A
 
 | # | Decisão | Status |
 |---|---|---|
-| [0001](0001-licenca.md) | Licença do projeto | Proposto — **requer decisão da mantenedoria** |
+| [0001](0001-licenca.md) | Licença do projeto | Aceito |
 | [0002](0002-typescript-monorepo.md) | TypeScript em monorepo para backend e cliente | Proposto |
 | [0003](0003-livekit-como-sfu.md) | LiveKit como servidor de mídia (SFU) | Proposto |
 | [0004](0004-postgres-e-valkey.md) | PostgreSQL como fonte da verdade e Valkey para estado efêmero | Proposto |

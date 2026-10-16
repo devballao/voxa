@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "description": "Acesso ao PostgreSQL do Voxa: cliente, esquema (Drizzle) e migrações",
+  "license": "AGPL-3.0-or-later",
   "type": "module",
   "sideEffects": false,
   "files": [

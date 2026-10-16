@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "description": "Contratos entre cliente e servidor do Voxa: esquemas Zod e tipos",
+  "license": "Apache-2.0",
   "type": "module",
   "sideEffects": false,
   "files": [

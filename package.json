@@ -2,6 +2,7 @@
   "name": "voxa",
   "private": true,
   "description": "Plataforma de comunicação em comunidade, livre e sem fins lucrativos",
+  "license": "AGPL-3.0-or-later",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/devballao/voxa.git"

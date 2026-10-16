@@ -11,6 +11,9 @@ coverage/
 .vite/
 *.tsbuildinfo
 storybook-static/
+# Temporários do Vite/Vitest ao carregar o arquivo de configuração
+vite.config.*.timestamp-*
+vitest.config.*.timestamp-*
 
 # Tauri / Rust
 apps/desktop/src-tauri/target/

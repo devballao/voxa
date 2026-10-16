@@ -1,6 +1,7 @@
 # Voxa
 
 [![CI](https://github.com/devballao/voxa/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/devballao/voxa/actions/workflows/ci.yml)
+[![Abrir no GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/devballao/voxa?quickstart=1)
 
 **Voxa** é uma plataforma de comunicação em comunidade — chat de texto, salas de voz e compartilhamento de tela — **livre, de código aberto e sem fins lucrativos**. Qualquer pessoa pode usar a instância pública ou hospedar a sua própria.
 
@@ -39,6 +40,8 @@ pnpm install
 pnpm bootstrap   # primeira vez: .env, infraestrutura e migrações
 pnpm dev         # API, gateway, worker e app web → http://localhost:5173
 ```
+
+Ou, sem instalar nada: clique em **Abrir no GitHub Codespaces** (acima). O ambiente já abre preparado; é só rodar `pnpm dev`.
 
 Detalhes em [Desenvolvimento §10.2](docs/10-desenvolvimento.md#102-ambiente-local).
 

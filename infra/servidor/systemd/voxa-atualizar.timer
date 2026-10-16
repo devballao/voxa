@@ -1,0 +1,12 @@
+# A cada 5 minutos: um merge na main chega à produção em até ~10 minutos
+# (o workflow Imagens leva poucos minutos para publicar).
+[Unit]
+Description=Voxa: verificar novas versões a cada 5 minutos
+
+[Timer]
+OnBootSec=2min
+OnUnitInactiveSec=5min
+RandomizedDelaySec=30s
+
+[Install]
+WantedBy=timers.target

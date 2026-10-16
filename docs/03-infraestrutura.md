@@ -161,6 +161,10 @@ flowchart LR
 
 Requisitos: Linux com Docker 24+ e Compose v2, IP público, portas **80 e 443 (TCP e UDP)**, **7881/tcp** e **7882/udp** abertas, e um domínio (ou subdomínio) apontando para o servidor.
 
+> **Ubuntu 24.04 novo?** O [`infra/servidor/preparar.sh`](../infra/servidor/README.md) faz tudo desta seção num comando só: instala o Docker, configura o firewall e as atualizações de segurança e liga o deploy contínuo.
+
+À mão, em qualquer Linux:
+
 ```bash
 git clone https://github.com/devballao/voxa.git && cd voxa/infra/compose
 ./scripts/gerar-segredos.sh    # cria o .env com segredos novos (não sobrescreve um existente)
@@ -213,6 +217,34 @@ Para voltar a uma versão anterior, defina `VOXA_VERSAO=sha-<commit>` no `.env` 
 
 - Versionamento semântico; migrações de banco sempre **compatíveis com a versão anterior** (expandir → migrar → contrair), para permitir atualização sem parada.
 - O gateway envia `RECONNECT` aos clientes antes de desligar; eles retomam a sessão em outro nó.
+
+### Deploy contínuo (o servidor puxa)
+
+Opcional, e usado na instância do projeto ([ADR 0008](adr/0008-deploy-puxado-pelo-servidor.md)). O [`infra/servidor/preparar.sh`](../infra/servidor/preparar.sh) prepara um Ubuntu 24.04 e instala o *timer* `voxa-atualizar`. A cada 5 minutos, o timer põe no ar o commit mais recente da `main` que já tem imagens publicadas. Passo a passo, operação e volta de versão: [`infra/servidor`](../infra/servidor/README.md).
+
+```mermaid
+sequenceDiagram
+    participant Dev as Merge na main
+    participant CI as GitHub Actions
+    participant GHCR as ghcr.io
+    participant T as Servidor (timer, 5 min)
+    Dev->>CI: push na main
+    CI->>GHCR: voxa-{api,gateway,worker,web}:sha-<commit>
+    loop a cada 5 minutos
+        T->>T: git fetch da main
+        T->>GHCR: as 4 imagens sha-<commit> existem?
+        alt commit novo com imagens
+            T->>T: código no commit + VOXA_VERSAO=sha-<commit>
+            T->>GHCR: docker compose pull
+            T->>T: docker compose up --wait (migrações antes da API)
+            alt algum serviço não fica saudável
+                T->>T: volta ao commit anterior e anota o que falhou
+            end
+        end
+    end
+```
+
+O servidor não guarda nenhuma credencial do GitHub, e o GitHub não tem acesso ao servidor.
 
 ## 3.7 Dimensionamento e custo
 

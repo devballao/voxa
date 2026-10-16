@@ -12,7 +12,9 @@ Plataforma de comunicação em comunidade (chat, voz e tela), livre e auto-hospe
 1. O trabalho é organizado em **milestones** e **issues** no GitHub. Cada issue tem contexto, tarefas, critérios de aceite e dependências.
 2. **Um PR por issue**, com `Closes #N`. O PR descreve o problema, a solução, a verificação feita e, numa seção própria, **o que não foi verificado**.
 3. A pessoa mantenedora revisa, testa e aprova. **Nunca faça push na `main` nem merge de PR.**
-4. **Uma issue por vez.** Depois de abrir um PR, pare e espere a pessoa mantenedora dizer que ele foi aprovado. Só então comece a próxima issue: o merge, sozinho, não é sinal para seguir.
+4. **Uma issue por vez.** Depois de abrir um PR, espere a pessoa mantenedora aprovar ou fazer o merge; aí siga direto para a próxima issue. Pare e espere a pessoa mantenedora:
+   - antes de criar milestones ou issues;
+   - quando a issue depender de algo que só ela pode fazer ou configurar (contas, painéis, servidores): deixe o código e o passo a passo prontos e combine o momento de fazer junto.
 5. **Antes de cada PR**, revise e registre no PR, numa seção própria:
    - **`.gitignore`:** rode o que a mudança afeta (build, testes, `pnpm dev`, `pnpm demo`) e confira com `git status --ignored` que nenhum arquivo gerado (build, cache, relatórios, capturas, `.env`, dados locais) ficaria fora do `.gitignore`.
    - **Informação sensível:** procure no diff tokens, senhas, chaves, certificados, e-mails pessoais e dados de produção. Confirme que logs, mensagens de erro e páginas geradas não expõem nada disso. Valores de desenvolvimento ficam só no `.env.example`, marcados como tal.

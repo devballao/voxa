@@ -21,8 +21,28 @@ Obrigado pelo interesse! O Voxa é feito por voluntários, e toda contribuição
 - **Tradução:** pelo Weblate do projeto (link no README quando estiver no ar).
 - **Design e acessibilidade:** issues com o rótulo `design` ou `acessibilidade`.
 - **Hospedagem:** teste a instalação em [Infraestrutura](docs/03-infraestrutura.md) e reporte o que não ficou claro.
-- **Segurança:** **não** abra issue pública. Siga o `SECURITY.md`.
+- **Segurança:** **não** abra issue pública. Siga o [`SECURITY.md`](SECURITY.md).
+
+## Licença e DCO
+
+O Voxa usa licenças diferentes por parte do código ([ADR-0001](docs/adr/0001-licenca.md)):
+
+| Parte | Licença |
+|---|---|
+| Servidor (`services/`, `packages/core`, `packages/db`) e apps (`apps/`) | [AGPL-3.0-or-later](LICENSE) |
+| Bibliotecas de cliente e protocolo (`packages/protocol` e, no futuro, `client-core`, `media`, `ui`) e `packages/config` | [Apache-2.0](LICENSES/Apache-2.0.txt) |
+| Documentação (`docs/`) | [CC BY-SA 4.0](LICENSES/CC-BY-SA-4.0.txt) |
+
+Ao contribuir, você licencia a sua contribuição nos mesmos termos da parte que alterou.
+
+Não pedimos que você ceda direitos autorais (CLA). Em vez disso, cada commit leva uma assinatura do **[Developer Certificate of Origin](https://developercertificate.org/)** (DCO): uma declaração de que você tem o direito de enviar aquele código sob a licença do projeto. Basta usar `-s` no commit:
+
+```bash
+git commit -s -m "feat(api): …"
+```
+
+Isso acrescenta a linha `Signed-off-by: Seu Nome <seu@email>`, com o nome e o e-mail da sua configuração do Git. Esqueceu? `git commit --amend -s` assina o último commit.
 
 ## Conduta
 
-Esperamos um ambiente acolhedor e respeitoso. O projeto adotará o [Contributor Covenant 2.1](https://www.contributor-covenant.org/pt-br/version/2/1/code_of_conduct/) como código de conduta (ver [Roadmap — Fase 0](docs/11-roadmap.md#fase-0--fundação)).
+Esperamos um ambiente acolhedor e respeitoso. Toda participação no projeto segue o [código de conduta](CODE_OF_CONDUCT.md), adaptado do Contributor Covenant 2.1.

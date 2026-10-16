@@ -48,3 +48,9 @@ Detalhes em [Desenvolvimento §10.2](docs/10-desenvolvimento.md#102-ambiente-loc
 ## Contribuindo
 
 Leia o [guia de contribuição](CONTRIBUTING.md). Toda ajuda é bem-vinda — código, design, tradução, documentação e testes.
+
+## Licença
+
+O servidor e os apps são licenciados sob a [AGPL-3.0-or-later](LICENSE); as bibliotecas de cliente e protocolo, sob a [Apache-2.0](LICENSES/Apache-2.0.txt); e a documentação, sob a [CC BY-SA 4.0](LICENSES/CC-BY-SA-4.0.txt). Detalhes no [ADR-0001](docs/adr/0001-licenca.md).
+
+Participar do projeto implica seguir o [código de conduta](CODE_OF_CONDUCT.md). Para relatar uma falha de segurança, veja o [`SECURITY.md`](SECURITY.md).

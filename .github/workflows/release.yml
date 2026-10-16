@@ -1,0 +1,89 @@
+# Publica as imagens de produção no GitHub Container Registry (ghcr.io) a cada
+# merge na main (docs/03-infraestrutura.md). Cada imagem é construída nativamente
+# em amd64 e em arm64 (runners do GitHub, gratuitos para repositórios públicos)
+# e depois as duas viram uma imagem multi-arquitetura.
+# As Actions são fixadas pelo hash do commit; o comentário indica a versão.
+name: Imagens
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: imagens-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  REGISTRO: ghcr.io/${{ github.repository_owner }}
+
+jobs:
+  construir:
+    name: ${{ matrix.servico.nome }} (${{ matrix.arquitetura.nome }})
+    runs-on: ${{ matrix.arquitetura.runner }}
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        servico:
+          - { nome: api, dockerfile: servico, args: "--build-arg PACOTE=@voxa/api --build-arg PORTA_SAUDE=3000 --build-arg CAMINHO_SAUDE=/api/v1/health" }
+          - { nome: gateway, dockerfile: servico, args: "--build-arg PACOTE=@voxa/gateway --build-arg PORTA_SAUDE=4000 --build-arg CAMINHO_SAUDE=/health" }
+          - { nome: worker, dockerfile: servico, args: "--build-arg PACOTE=@voxa/worker" }
+          - { nome: web, dockerfile: web, args: "" }
+        arquitetura:
+          - { nome: amd64, runner: ubuntu-24.04 }
+          - { nome: arm64, runner: ubuntu-24.04-arm }
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # O token vai por variável de ambiente, nunca interpolado no script.
+      - name: Entrar no ghcr.io
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          USUARIO: ${{ github.actor }}
+        run: echo "$TOKEN" | docker login ghcr.io -u "$USUARIO" --password-stdin
+
+      - name: Construir e enviar
+        env:
+          IMAGEM: ${{ env.REGISTRO }}/voxa-${{ matrix.servico.nome }}:sha-${{ github.sha }}-${{ matrix.arquitetura.nome }}
+        run: |
+          # shellcheck disable=SC2086 # args contém vários --build-arg
+          docker build -f "infra/docker/${{ matrix.servico.dockerfile }}.Dockerfile" ${{ matrix.servico.args }} -t "$IMAGEM" .
+          docker push "$IMAGEM"
+
+  publicar:
+    name: Publicar ${{ matrix.servico }} (multi-arquitetura)
+    needs: construir
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        servico: [api, gateway, worker, web]
+    steps:
+      # O token vai por variável de ambiente, nunca interpolado no script.
+      - name: Entrar no ghcr.io
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          USUARIO: ${{ github.actor }}
+        run: echo "$TOKEN" | docker login ghcr.io -u "$USUARIO" --password-stdin
+
+      # Tags: sha-<commit> (fixa, para voltar a uma versão) e main (a mais recente).
+      - name: Juntar amd64 e arm64
+        env:
+          BASE: ${{ env.REGISTRO }}/voxa-${{ matrix.servico }}
+        run: |
+          docker buildx imagetools create \
+            -t "$BASE:sha-${{ github.sha }}" -t "$BASE:main" \
+            "$BASE:sha-${{ github.sha }}-amd64" "$BASE:sha-${{ github.sha }}-arm64"
+          docker buildx imagetools inspect "$BASE:sha-${{ github.sha }}"

@@ -126,3 +126,27 @@ jobs:
             apps/web/playwright-report/
           if-no-files-found: ignore
           retention-days: 30
+
+  imagens:
+    name: Imagem Docker ${{ matrix.servico.nome }} (build)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        servico:
+          - { nome: api, dockerfile: servico, args: "--build-arg PACOTE=@voxa/api --build-arg PORTA_SAUDE=3000 --build-arg CAMINHO_SAUDE=/api/v1/health" }
+          - { nome: gateway, dockerfile: servico, args: "--build-arg PACOTE=@voxa/gateway --build-arg PORTA_SAUDE=4000 --build-arg CAMINHO_SAUDE=/health" }
+          - { nome: worker, dockerfile: servico, args: "--build-arg PACOTE=@voxa/worker" }
+          - { nome: web, dockerfile: web, args: "" }
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Só constrói (amd64), para um Dockerfile quebrado aparecer no PR e não depois do merge.
+      - name: Construir
+        run: |
+          # shellcheck disable=SC2086 # args contém vários --build-arg
+          docker build -f "infra/docker/${{ matrix.servico.dockerfile }}.Dockerfile" ${{ matrix.servico.args }} -t "voxa-${{ matrix.servico.nome }}:pr" .
+          docker image ls "voxa-${{ matrix.servico.nome }}:pr"

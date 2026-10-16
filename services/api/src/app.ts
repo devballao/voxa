@@ -1,3 +1,4 @@
+import { VoxaError } from "@voxa/core";
 import { API_BASE_PATH } from "@voxa/protocol";
 import type { ErrorCode, ErrorResponse } from "@voxa/protocol/http";
 import Fastify, {
@@ -61,6 +62,11 @@ export async function construirApp(opcoes: OpcoesApp): Promise<FastifyInstance> 
   app.setSerializerCompiler(serializerCompiler);
 
   app.setErrorHandler<FastifyError>((err, req, reply) => {
+    // Erro de domínio: o serviço já escolheu o código e a mensagem para o cliente.
+    if (err instanceof VoxaError) {
+      if (err.status >= 500) req.log.error({ err }, "erro de domínio");
+      return reply.code(err.status).send(err.paraResposta());
+    }
     if (hasZodFastifySchemaValidationErrors(err)) {
       return reply.code(400).send(
         erro("VALIDATION_FAILED", "A requisição tem campos inválidos.", {

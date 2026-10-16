@@ -1,3 +1,4 @@
+import { VoxaError } from "@voxa/core";
 import type { HealthDependency } from "@voxa/protocol/http";
 import { ErrorResponse, HealthResponse } from "@voxa/protocol/http";
 import { afterEach, describe, expect, it } from "vitest";
@@ -94,6 +95,24 @@ describe("erros no formato padrão", () => {
     const proibido = await a.inject({ method: "GET", url: "/proibido" });
     expect(proibido.statusCode).toBe(415);
     expect(ErrorResponse.parse(proibido.json()).error.message).toBe("Corpo vazio");
+  });
+
+  it("converte VoxaError com o status, o código e os detalhes do domínio", async () => {
+    const a = await montar();
+    a.get("/canal", async () => {
+      throw new VoxaError("MISSING_PERMISSION", "Sem permissão para enviar mensagens.", {
+        details: { permission: "SEND_MESSAGES" },
+      });
+    });
+    const res = await a.inject({ method: "GET", url: "/canal" });
+    expect(res.statusCode).toBe(403);
+    expect(ErrorResponse.parse(res.json())).toEqual({
+      error: {
+        code: "MISSING_PERMISSION",
+        message: "Sem permissão para enviar mensagens.",
+        details: { permission: "SEND_MESSAGES" },
+      },
+    });
   });
 });
 

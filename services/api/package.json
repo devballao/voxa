@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1145.0",
+    "@voxa/core": "workspace:*",
     "@voxa/db": "workspace:*",
     "@voxa/protocol": "workspace:*",
     "fastify": "5.12.5",

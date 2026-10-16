@@ -17,6 +17,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@voxa/core": "workspace:*",
     "@voxa/protocol": "workspace:*",
     "iovalkey": "0.4.0",
     "pino": "10.3.1",

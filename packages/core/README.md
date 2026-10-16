@@ -30,6 +30,27 @@ throw new VoxaError("MISSING_PERMISSION", "Sem permissão para enviar mensagens.
 
 A API converte o erro automaticamente (`err.status` e `err.paraResposta()`). Qualquer outro erro vira `500 INTERNAL_ERROR`, sem expor a mensagem interna. Um código novo entra primeiro em `ErrorCode` (`@voxa/protocol`); o TypeScript então exige o status correspondente em `STATUS_POR_CODIGO`.
 
+## IDs: Snowflake
+
+Todas as entidades usam IDs Snowflake ([Backend §4.2](../../docs/04-backend.md#42-identificadores)): `bigint` no servidor, **string** no JSON.
+
+```ts
+import { GeradorSnowflake, LeaseDeWorker, snowflakeDeString } from "@voxa/core";
+
+// Na inicialização do serviço (a API, o gateway e o worker já fazem isso):
+const lease = new LeaseDeWorker({ valkey, dono: `api-${hostname()}-${process.pid}`, logger });
+await lease.iniciar(); // não lança: sem Valkey, tenta de novo a cada 10 s
+const ids = new GeradorSnowflake(() => lease.worker);
+
+const id = ids.gerar();                  // 123456789012345678n
+const json = { id: String(id) };         // sempre string no fio
+const deVolta = snowflakeDeString("1…"); // valida o que vem do cliente (VALIDATION_FAILED)
+
+await lease.liberar(); // no desligamento
+```
+
+Sem lease válido, `gerar()` lança `SERVICE_UNAVAILABLE` em vez de arriscar um ID repetido.
+
 ## Organização
 
 Cada área do domínio é uma pasta em `src/`, com nomes em português:
@@ -37,6 +58,7 @@ Cada área do domínio é uma pasta em `src/`, com nomes em português:
 ```
 src/
 ├── erros/                 # VoxaError
+├── snowflake/             # GeradorSnowflake, LeaseDeWorker
 ├── <área>/                # ex.: contas/, servidores/, mensagens/
 │   ├── servico.ts         # regras de negócio: a única porta de entrada da área
 │   ├── repositorio.ts     # acesso ao banco (Drizzle), sem regras

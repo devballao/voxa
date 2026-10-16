@@ -20,14 +20,17 @@
     "dev": "tsc -p tsconfig.build.json --watch --preserveWatchOutput",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:unit": "vitest run",
+    "test:unit": "vitest run src/",
+    "test:integration": "vitest run --mode integration test/integration/",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@voxa/protocol": "workspace:*"
+    "@voxa/protocol": "workspace:*",
+    "iovalkey": "0.4.0"
   },
   "devDependencies": {
+    "@types/node": "24.19.0",
     "@voxa/config": "workspace:*",
     "@vitest/coverage-v8": "5.0.3",
     "typescript": "7.0.2",

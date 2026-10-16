@@ -14,13 +14,14 @@ const resposta = HealthResponse.parse(await res.json()); // valida e tipa
 
 | Subcaminho | Conteúdo |
 |---|---|
-| `@voxa/protocol` | Tudo abaixo, mais as constantes de versão (`API_BASE_PATH`, `GATEWAY_PATH`…) |
+| `@voxa/protocol` | Tudo abaixo, mais as constantes de versão (`API_BASE_PATH`, `GATEWAY_PATH`…) e `Snowflake` (ID como string de dígitos) |
 | `@voxa/protocol/http` | `ErrorResponse` (erro padrão), `HealthResponse` (`GET /api/v1/health`) |
 | `@voxa/protocol/gateway` | `GatewayEnvelope`, `HelloMessage`, `HeartbeatMessage`, `HeartbeatAckMessage`, `ReconnectMessage`, `ServerMessage`, `ClientMessage` e `GatewayCloseCode` (4001 mensagem inválida, 4009 sessão expirada) |
 
 ## Convenções
 
 - Campos no fio em **`snake_case`** (`heartbeat_interval`, `latency_ms`).
+- IDs sempre como **string** (`Snowflake`): números acima de 2⁵³ perdem precisão no JavaScript.
 - Cada esquema exporta um valor e um tipo com o mesmo nome (`HealthResponse` serve para `.parse()` e como tipo).
 - Campos desconhecidos são **ignorados**, para que versões futuras do servidor possam acrescentar campos sem quebrar clientes antigos.
 - Toda mudança em um esquema vem acompanhada de teste em `src/**/*.test.ts`. Meta de cobertura: 80% (ver [docs](../../docs/10-desenvolvimento.md#103-testes)).

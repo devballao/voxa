@@ -112,8 +112,23 @@ Esse número vale para a rede de um datacenter. Numa conexão doméstica, os dow
 
 - Portas, credenciais de dev e mais soluções de problemas da infraestrutura: [`infra/compose/README.md`](../infra/compose/README.md).
 - E-mails de desenvolvimento aparecem no **Mailpit** (`http://localhost:8025`).
-- **GitHub Codespaces:** abra a porta 5173 pela aba *Ports*. O Vite já aceita o domínio `*.app.github.dev`.
-- Um `devcontainer.json` para Codespaces e VS Code chega na #13.
+
+### Dev Container (GitHub Codespaces ou VS Code)
+
+O repositório tem um [`.devcontainer/devcontainer.json`](../.devcontainer/devcontainer.json) que prepara tudo sozinho: Ubuntu 24.04, Node 24 e pnpm (via corepack), Docker dentro do contêiner e as extensões recomendadas.
+
+- **Codespaces:** botão **Abrir no GitHub Codespaces** no README, ou *Code → Codespaces → Create codespace on main*.
+- **VS Code local:** com a extensão *Dev Containers*, rode *Dev Containers: Reopen in Container*.
+
+Ao criar o contêiner, rodam `pnpm install` e `pnpm bootstrap`. Quando terminar, é só:
+
+```bash
+pnpm dev
+```
+
+A porta **5173** (app web) é anunciada com uma notificação. As demais (API 3000, gateway 4000, LiveKit 7880, Mailpit 8025, S3 3900) ficam na aba *Ports*, com rótulos. O Vite já aceita o domínio `*.app.github.dev`.
+
+**Limites do Codespaces para mídia:** o Codespaces encaminha só portas **TCP**. A mídia de voz e vídeo (UDP, porta `7882`) não chega de fora. Testes entre abas do mesmo navegador devem funcionar via ICE/TCP (porta `7881`), o que ainda será validado quando houver cliente de voz, no MVP. Para testes com vários dispositivos, rode o ambiente localmente. Detalhes em [infra/compose/README.md](../infra/compose/README.md#voz-e-vídeo-no-github-codespaces).
 
 ## 10.3 Testes
 

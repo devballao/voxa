@@ -2,7 +2,9 @@
 
 Serviços de apoio do Voxa para rodar localmente com Docker Compose ([`docker-compose.dev.yml`](docker-compose.dev.yml)).
 
-> ⚠️ **Somente desenvolvimento.** Todas as senhas, chaves e segredos aqui são públicos e fixos. A configuração de produção é outra (ver [Infraestrutura](../../docs/03-infraestrutura.md)).
+> ⚠️ **Somente desenvolvimento.** Todas as senhas, chaves e segredos aqui são públicos e fixos.
+>
+> **Produção** é o [`docker-compose.yml`](docker-compose.yml) desta mesma pasta, com segredos gerados por `scripts/gerar-segredos.sh`. Passo a passo em [Infraestrutura §3.6](../../docs/03-infraestrutura.md#36-instalação-nó-único).
 
 ## Comandos
 

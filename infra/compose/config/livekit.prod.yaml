@@ -1,0 +1,13 @@
+# LiveKit de produção. As chaves vêm de LIVEKIT_KEYS (montada a partir do .env).
+port: 7880
+bind_addresses:
+  - "0.0.0.0"
+rtc:
+  tcp_port: 7881
+  # Uma única porta UDP (multiplexada): só ela precisa ser liberada no firewall.
+  udp_port: 7882
+  # O IP anunciado aos navegadores vem de VOXA_IP_PUBLICO (variável NODE_IP), sem
+  # depender de STUN na subida. Precisa ser o IP público do servidor.
+  use_external_ip: false
+logging:
+  level: info

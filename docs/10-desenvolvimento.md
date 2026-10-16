@@ -193,6 +193,38 @@ Cada pacote tem seu próprio Vitest, estendendo a configuração compartilhada (
    ```
    Em `pnpm test`, sem infraestrutura, o bloco é pulado; em `pnpm test:integration` (modo `integration`), vira erro com a instrução.
 
+### Testes de ponta a ponta e demonstração da etapa
+
+Os testes de ponta a ponta (E2E) usam o **Playwright** e ficam em `apps/web/e2e/*.e2e.ts`. Eles abrem o app num Chromium de verdade, com o ambiente inteiro no ar.
+
+| Comando | O que faz |
+|---|---|
+| `pnpm demo` | Sobe o ambiente (ou reaproveita um `pnpm dev` já rodando), roda os cenários E2E tirando capturas de tela e gera a **página de resumo** da etapa atual em `demo/milestone-<N>/index.html` |
+| `pnpm demo --milestone 2` | O mesmo, para um milestone específico (número do GitHub) |
+| `pnpm --filter @voxa/web test:e2e` | Só os testes E2E, sem capturas. Precisa do `pnpm dev` rodando |
+
+A página de resumo é um arquivo só (as imagens vão embutidas): abra no navegador ou envie para alguém. Ela traz as capturas de cada cenário, as issues e os PRs que entraram na etapa e o que ficou para depois, consultados no GitHub. Sem acesso ao GitHub, a página sai só com as capturas.
+
+Na primeira vez, o `pnpm demo` baixa o Chromium do Playwright (~150 MB). Se faltarem bibliotecas do sistema no Linux: `pnpm --filter @voxa/web exec playwright install --with-deps chromium`.
+
+**Para acrescentar um cenário** à demonstração, escreva o teste E2E normalmente e chame `capturar` no ponto que vale mostrar:
+
+```ts
+import { expect, test } from "@playwright/test";
+import { capturar } from "./demonstracao.ts";
+
+test("cadastro com código por e-mail", async ({ page }) => {
+  // …passos e verificações…
+  await capturar(page, {
+    id: "cadastro-codigo",                 // nome do arquivo .png
+    titulo: "Cadastro: código enviado",
+    descricao: "Depois de informar o e-mail, a pessoa recebe um código de 6 dígitos.",
+  });
+});
+```
+
+Fora do `pnpm demo`, `capturar` não faz nada. As capturas aparecem na página na ordem em que os cenários rodam (ordem alfabética dos arquivos).
+
 ## 10.4 Convenções
 
 - **Commits:** [Conventional Commits](https://www.conventionalcommits.org/pt-br/) (`feat(gateway): resume em outro nó`), que alimentam o changelog automático.
@@ -206,7 +238,7 @@ Cada pacote tem seu próprio Vitest, estendendo a configuração compartilhada (
 
 ### O que roda hoje
 
-O workflow [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) roda em todo pull request e em todo push na `main`, com dois jobs em paralelo:
+O workflow [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) roda em todo pull request e em todo push na `main`, com três jobs em paralelo:
 
 ```mermaid
 flowchart LR
@@ -220,12 +252,18 @@ flowchart LR
         direction TB
         i1["pnpm install"] --> i2["pnpm dev:infra<br/>Postgres, Valkey, Garage,<br/>LiveKit, Mailpit"] --> i3["test:integration"]
     end
+    PR --> D
+    subgraph D["Demonstração"]
+        direction TB
+        d1["pnpm install<br/>+ Chromium"] --> d2["pnpm bootstrap"] --> d3["pnpm demo<br/>E2E + capturas"] --> d4["artefato<br/>demonstracao"]
+    end
 ```
 
 - **Verificação:** com cache do pnpm e do Turborepo; não precisa de Docker.
 - **Integração:** usa a **mesma infraestrutura do desenvolvimento local** (`pnpm dev:infra`). Assim o CI também testa o Compose e o script de inicialização. Se falhar, os logs dos contêineres aparecem no fim do job.
+- **Demonstração:** roda os testes E2E com o ambiente completo e anexa a página de resumo da etapa ao workflow (artefato `demonstracao`, guardado por 30 dias). Para ver: aba *Actions* → a execução do PR → *Artifacts*.
 - **Segurança:**
-  - permissão mínima (`contents: read`);
+  - permissão mínima (`contents: read`; a demonstração também lê issues e PRs, para a página de resumo);
   - Actions fixadas pelo **hash do commit**, com a versão no comentário;
   - `persist-credentials: false` no checkout.
 - **Concorrência:** um push novo no mesmo PR cancela a execução anterior.

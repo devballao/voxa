@@ -76,17 +76,16 @@ flowchart TB
 | 443 | TCP + UDP | Caddy | sim | HTTPS, WSS, HTTP/3 (QUIC) |
 | 7880 | TCP | LiveKit API/sinalização | **não** | Exposta via Caddy em `/rtc` |
 | 7881 | TCP | LiveKit ICE/TCP | sim | Fallback quando UDP está bloqueado |
-| 50000–60000 | UDP | LiveKit RTP | sim | Mídia; reduza a faixa em instâncias pequenas |
-| 3478 | UDP | TURN | sim | Redes restritivas |
-| 5349 | TCP | TURN/TLS | sim | Redes que só permitem TLS (pode usar 443 num IP dedicado) |
+| 7882 | UDP | LiveKit RTP | sim | Mídia, numa única porta UDP multiplexada (Compose de produção). Instâncias grandes podem usar uma faixa |
+| 3478 | UDP | TURN | sim | Redes restritivas (a ativar no Milestone 5, com a voz) |
+| 5349 | TCP | TURN/TLS | sim | Redes que só permitem TLS (pode usar 443 num IP dedicado; Milestone 5) |
 | 5432, 6379, 3900 | TCP | Postgres, Valkey, S3 | **não** | Somente rede interna |
 
 ### DNS
 
 | Registro | Aponta para |
 |---|---|
-| `voxa.exemplo.org` | Caddy (app web + API + gateway) |
-| `rtc.voxa.exemplo.org` | Caddy → LiveKit (sinalização) |
+| `voxa.exemplo.org` | Caddy (app web, API, gateway e sinalização do LiveKit em `/rtc`) |
 | `turn.voxa.exemplo.org` | IP do LiveKit (TURN/TLS precisa de certificado próprio) |
 | `cdn.voxa.exemplo.org` | S3 público (avatares, anexos via URL assinada) |
 
@@ -97,8 +96,7 @@ voxa.exemplo.org
 ├── /              → arquivos estáticos do app web (SPA)
 ├── /api/v1/*      → api:3000
 ├── /gateway       → gateway:4000   (upgrade WebSocket)
-└── /health        → api:3000/health
-rtc.voxa.exemplo.org → livekit:7880
+└── /rtc           → livekit:7880   (sinalização de voz e vídeo)
 cdn.voxa.exemplo.org → s3:3900      (somente leitura, cache agressivo)
 ```
 
@@ -161,18 +159,31 @@ flowchart LR
 
 ## 3.6 Instalação (nó único)
 
-> Os arquivos citados (`infra/compose/…`) serão criados na Fase 0 do [Roadmap](11-roadmap.md).
+Requisitos: Linux com Docker 24+ e Compose v2, IP público, portas **80 e 443 (TCP e UDP)**, **7881/tcp** e **7882/udp** abertas, e um domínio (ou subdomínio) apontando para o servidor.
 
 ```bash
 git clone https://github.com/devballao/voxa.git && cd voxa/infra/compose
-cp .env.example .env              # domínio, e-mail ACME, SMTP
-./scripts/gerar-segredos.sh       # chaves LiveKit, assinatura JWT, senhas internas
-docker compose up -d
-docker compose exec api voxa-admin migrate
-docker compose exec api voxa-admin create-admin --email voce@exemplo.org
+./scripts/gerar-segredos.sh    # cria o .env com segredos novos (não sobrescreve um existente)
+nano .env                      # preencha VOXA_DOMINIO, VOXA_EMAIL_ACME e VOXA_IP_PUBLICO
+docker compose up -d           # baixa as imagens, aplica as migrações e sobe tudo
+./scripts/iniciar-garage.sh    # primeira vez: bucket e chave do armazenamento S3
 ```
 
-Requisitos: Linux com Docker 24+, IP público, portas da seção 3.2 abertas, domínio com DNS configurado.
+Em alguns minutos, `https://<seu domínio>` mostra a página de status. O Caddy obtém o certificado HTTPS sozinho (Let's Encrypt).
+
+O que sobe ([`infra/compose/docker-compose.yml`](../infra/compose/docker-compose.yml)):
+
+| Serviço | Imagem | Exposto na internet |
+|---|---|---|
+| Caddy (HTTPS, HTTP/3) | `caddy:2.11.4-alpine` | **80, 443** |
+| App web, API, gateway, worker | `ghcr.io/devballao/voxa-*` | não (só pelo Caddy) |
+| Migrações | `voxa-api` (roda e encerra a cada subida) | — |
+| PostgreSQL, Valkey (com senha), Garage (S3) | as mesmas versões do desenvolvimento | não |
+| LiveKit | `livekit/livekit-server:v1.13.7` | **7881/tcp, 7882/udp** (mídia) |
+
+- **Segredos:** só no `infra/compose/.env`, criado pelo `gerar-segredos.sh` com permissão 600 e ignorado pelo Git. Senhas do Postgres e do Valkey, segredos do Garage e as chaves do LiveKit são gerados aleatoriamente.
+- **Rotas do Caddy:** `/api/*` → API, `/gateway` → gateway (WebSocket), `/rtc` → LiveKit, o resto → app web. Cabeçalhos de segurança: HSTS, CSP, `X-Frame-Options`, `nosniff`.
+- **Teste local**, sem domínio: `VOXA_DOMINIO=localhost` e `VOXA_IP_PUBLICO=127.0.0.1`. O Caddy usa um certificado interno (o navegador avisa que não é confiável).
 
 ### Imagens Docker
 
@@ -193,10 +204,12 @@ O CI publica uma imagem por serviço no GitHub Container Registry a cada merge n
 ### Atualização
 
 ```bash
-git pull && docker compose pull
-docker compose exec api voxa-admin migrate --check   # mostra migrações pendentes
-docker compose up -d                                 # rolling: api/gateway sobem antes de derrubar os antigos
+cd voxa/infra/compose
+git pull && docker compose pull   # novas imagens (VOXA_VERSAO no .env: "main" ou "sha-<commit>")
+docker compose up -d              # recria o que mudou; as migrações rodam antes da API
 ```
+
+Para voltar a uma versão anterior, defina `VOXA_VERSAO=sha-<commit>` no `.env` e rode `docker compose up -d`.
 
 - Versionamento semântico; migrações de banco sempre **compatíveis com a versão anterior** (expandir → migrar → contrair), para permitir atualização sem parada.
 - O gateway envia `RECONNECT` aos clientes antes de desligar; eles retomam a sessão em outro nó.

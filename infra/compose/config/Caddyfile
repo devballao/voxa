@@ -1,0 +1,33 @@
+# Caddy de produção: HTTPS automático (Let's Encrypt) e roteamento para os serviços.
+# VOXA_DOMINIO=localhost usa um certificado interno do próprio Caddy (testes locais).
+{
+	email {$VOXA_EMAIL_ACME}
+}
+
+{$VOXA_DOMINIO} {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(self), microphone=(self), display-capture=(self), geolocation=()"
+		Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self' wss:; font-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+		-Server
+	}
+
+	handle /api/* {
+		reverse_proxy api:3000
+	}
+	handle /gateway* {
+		reverse_proxy gateway:4000
+	}
+	# Sinalização do LiveKit (voz e vídeo).
+	handle /rtc* {
+		reverse_proxy livekit:7880
+	}
+	handle {
+		reverse_proxy web:80
+	}
+}

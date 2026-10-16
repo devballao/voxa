@@ -1,0 +1,168 @@
+# Voxa em produção: um único servidor com Docker Compose (docs/03-infraestrutura.md §3.1 e §3.6).
+#
+#   cd infra/compose
+#   ./scripts/gerar-segredos.sh     # primeira vez: cria o .env com segredos novos
+#   docker compose up -d
+#   ./scripts/iniciar-garage.sh     # primeira vez: bucket e chave do armazenamento S3
+#
+# Só o Caddy (80/443) e as portas de mídia do LiveKit ficam expostos. Bancos e
+# serviços internos conversam pela rede do Compose, sem porta pública.
+name: voxa
+
+x-servico: &servico
+  restart: unless-stopped
+  logging:
+    driver: json-file
+    options: { max-size: "10m", max-file: "5" }
+
+# Variáveis comuns de API, gateway e worker (montadas a partir do .env).
+x-ambiente: &ambiente
+  NODE_ENV: production
+  LOG_LEVEL: ${LOG_LEVEL:-info}
+  DATABASE_URL: postgres://voxa:${POSTGRES_PASSWORD:?rode scripts/gerar-segredos.sh}@postgres:5432/voxa
+  VALKEY_URL: redis://:${VALKEY_PASSWORD:?rode scripts/gerar-segredos.sh}@valkey:6379
+  S3_ENDPOINT: http://garage:3900
+  S3_REGION: garage
+  S3_BUCKET: ${S3_BUCKET:-voxa}
+  S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:?rode scripts/gerar-segredos.sh}
+  S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:?rode scripts/gerar-segredos.sh}
+  S3_FORCE_PATH_STYLE: "true"
+  LIVEKIT_URL: http://livekit:7880
+  LIVEKIT_API_KEY: ${LIVEKIT_API_KEY:?rode scripts/gerar-segredos.sh}
+  LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET:?rode scripts/gerar-segredos.sh}
+
+services:
+  caddy:
+    <<: *servico
+    image: caddy:2.11.4-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp" # HTTP/3
+    environment:
+      VOXA_DOMINIO: ${VOXA_DOMINIO:?defina VOXA_DOMINIO no .env}
+      VOXA_EMAIL_ACME: ${VOXA_EMAIL_ACME:?defina VOXA_EMAIL_ACME no .env}
+    volumes:
+      - ./config/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_dados:/data
+      - caddy_config:/config
+    depends_on:
+      web: { condition: service_healthy }
+      api: { condition: service_healthy }
+      gateway: { condition: service_healthy }
+
+  web:
+    <<: *servico
+    image: ${VOXA_IMAGENS:-ghcr.io/devballao}/voxa-web:${VOXA_VERSAO:-main}
+
+  api:
+    <<: *servico
+    image: ${VOXA_IMAGENS:-ghcr.io/devballao}/voxa-api:${VOXA_VERSAO:-main}
+    environment:
+      <<: *ambiente
+    depends_on:
+      migracoes: { condition: service_completed_successfully }
+      valkey: { condition: service_healthy }
+      garage: { condition: service_healthy }
+      livekit: { condition: service_healthy }
+
+  gateway:
+    <<: *servico
+    image: ${VOXA_IMAGENS:-ghcr.io/devballao}/voxa-gateway:${VOXA_VERSAO:-main}
+    environment:
+      <<: *ambiente
+    depends_on:
+      valkey: { condition: service_healthy }
+
+  worker:
+    <<: *servico
+    image: ${VOXA_IMAGENS:-ghcr.io/devballao}/voxa-worker:${VOXA_VERSAO:-main}
+    environment:
+      <<: *ambiente
+    depends_on:
+      migracoes: { condition: service_completed_successfully }
+      valkey: { condition: service_healthy }
+
+  # Aplica as migrações a cada subida (idempotente) e encerra.
+  migracoes:
+    image: ${VOXA_IMAGENS:-ghcr.io/devballao}/voxa-api:${VOXA_VERSAO:-main}
+    command: ["node", "node_modules/@voxa/db/dist/cli/migrate.js"]
+    environment:
+      <<: *ambiente
+    depends_on:
+      postgres: { condition: service_healthy }
+    restart: "no"
+
+  postgres:
+    <<: *servico
+    image: postgres:17.11-alpine
+    environment:
+      POSTGRES_USER: voxa
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?rode scripts/gerar-segredos.sh}
+      POSTGRES_DB: voxa
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U voxa -d voxa"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  valkey:
+    <<: *servico
+    image: valkey/valkey:8.1.10-alpine
+    command: ["valkey-server", "--appendonly", "yes", "--requirepass", "${VALKEY_PASSWORD:?rode scripts/gerar-segredos.sh}"]
+    volumes:
+      - valkey:/data
+    healthcheck:
+      test: ["CMD-SHELL", "valkey-cli -a \"$$VALKEY_PASSWORD\" --no-auth-warning ping | grep -q PONG"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    environment:
+      VALKEY_PASSWORD: ${VALKEY_PASSWORD}
+
+  garage:
+    <<: *servico
+    image: dxflrs/garage:v2.4.1
+    environment:
+      GARAGE_RPC_SECRET: ${GARAGE_RPC_SECRET:?rode scripts/gerar-segredos.sh}
+      GARAGE_ADMIN_TOKEN: ${GARAGE_ADMIN_TOKEN:?rode scripts/gerar-segredos.sh}
+      GARAGE_METRICS_TOKEN: ${GARAGE_METRICS_TOKEN:?rode scripts/gerar-segredos.sh}
+    volumes:
+      - ./config/garage.prod.toml:/etc/garage.toml:ro
+      - garage:/var/lib/garage
+    healthcheck:
+      test: ["CMD", "/garage", "status"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+  livekit:
+    <<: *servico
+    image: livekit/livekit-server:v1.13.7
+    command: ["--config", "/etc/livekit.yaml"]
+    environment:
+      # Formato "chave: segredo"; vem do .env, nunca do arquivo de configuração.
+      LIVEKIT_KEYS: "${LIVEKIT_API_KEY}: ${LIVEKIT_API_SECRET}"
+      # IP público do servidor, anunciado aos navegadores para a mídia.
+      NODE_IP: ${VOXA_IP_PUBLICO:?defina VOXA_IP_PUBLICO no .env}
+    ports:
+      - "7881:7881" # ICE/TCP
+      - "7882:7882/udp" # mídia (UDP multiplexado)
+    volumes:
+      - ./config/livekit.prod.yaml:/etc/livekit.yaml:ro
+    healthcheck:
+      test: ["CMD", "busybox", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:7880"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  caddy_dados:
+  caddy_config:
+  postgres:
+  valkey:
+  garage:

@@ -57,7 +57,14 @@ jobs:
         run: |
           # shellcheck disable=SC2086 # args contém vários --build-arg
           docker build -f "infra/docker/${{ matrix.servico.dockerfile }}.Dockerfile" ${{ matrix.servico.args }} -t "$IMAGEM" .
-          docker push "$IMAGEM"
+          # Jobs paralelos enviam as mesmas camadas base; o GHCR às vezes responde "unknown blob"
+          # a um deles. Na nova tentativa a camada já existe e o envio passa.
+          for tentativa in 1 2 3; do
+            docker push "$IMAGEM" && break
+            if [ "$tentativa" = 3 ]; then exit 1; fi
+            echo "::warning::push falhou (tentativa $tentativa de 3); tentando de novo em $((tentativa * 15)) s"
+            sleep $((tentativa * 15))
+          done
 
   publicar:
     name: Publicar ${{ matrix.servico }} (multi-arquitetura)

@@ -25,11 +25,13 @@ describe("API pública de @voxa/protocol", () => {
   it("@voxa/protocol/gateway exporta os esquemas do gateway", () => {
     expect(Object.keys(gateway).sort()).toEqual([
       "ClientMessage",
+      "GatewayCloseCode",
       "GatewayEnvelope",
       "GatewayOp",
       "HeartbeatAckMessage",
       "HeartbeatMessage",
       "HelloMessage",
+      "ReconnectMessage",
       "ServerMessage",
     ]);
   });

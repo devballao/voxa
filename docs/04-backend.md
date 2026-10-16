@@ -248,6 +248,15 @@ Envelope de toda mensagem:
 | `RECONNECT` | S → C | Servidor vai desligar; reconecte e faça `RESUME` |
 | `INVALID_SESSION` | S → C | Não dá para retomar; faça `IDENTIFY` de novo |
 
+### Códigos de fechamento
+
+| Código | Nome (`GatewayCloseCode`) | Significado | Cliente deve |
+|---|---|---|---|
+| 1001 | — | Servidor reiniciando (precedido de `RECONNECT`) | Reconectar em outro nó |
+| 1009 | — | Mensagem acima do limite (4 KB) | Corrigir o cliente |
+| 4001 | `INVALID_MESSAGE` | JSON inválido, op desconhecido ou mensagem binária | Corrigir o cliente; não reconectar em laço |
+| 4009 | `SESSION_TIMEOUT` | Nenhum `HEARTBEAT` em 1,5 × `heartbeat_interval` | Reconectar |
+
 ### Ciclo de vida
 
 ```mermaid

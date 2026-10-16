@@ -16,7 +16,7 @@ const resposta = HealthResponse.parse(await res.json()); // valida e tipa
 |---|---|
 | `@voxa/protocol` | Tudo abaixo, mais as constantes de versão (`API_BASE_PATH`, `GATEWAY_PATH`…) |
 | `@voxa/protocol/http` | `ErrorResponse` (erro padrão), `HealthResponse` (`GET /api/v1/health`) |
-| `@voxa/protocol/gateway` | `GatewayEnvelope`, `HelloMessage`, `HeartbeatMessage`, `HeartbeatAckMessage`, `ServerMessage`, `ClientMessage` |
+| `@voxa/protocol/gateway` | `GatewayEnvelope`, `HelloMessage`, `HeartbeatMessage`, `HeartbeatAckMessage`, `ReconnectMessage`, `ServerMessage`, `ClientMessage` e `GatewayCloseCode` (4001 mensagem inválida, 4009 sessão expirada) |
 
 ## Convenções
 

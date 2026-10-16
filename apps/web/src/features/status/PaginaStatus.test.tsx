@@ -108,4 +108,13 @@ describe("PaginaStatus", () => {
     );
     expect(resumo()).toHaveTextContent("Há serviços com problema");
   });
+
+  it("rodapé com a licença e o link para o código-fonte", () => {
+    render(<PaginaStatus saude={apiOk} gateway={gwOk} />);
+    expect(screen.getByRole("contentinfo")).toHaveTextContent("AGPL-3.0-or-later");
+    expect(screen.getByRole("link", { name: "github.com/devballao/voxa" })).toHaveAttribute(
+      "href",
+      "https://github.com/devballao/voxa",
+    );
+  });
 });

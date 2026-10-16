@@ -21,6 +21,7 @@ apps/desktop/src-tauri/gen/
 target/
 
 # Testes
+/demo/
 playwright-report/
 test-results/
 blob-report/

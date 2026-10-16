@@ -16,6 +16,9 @@ const CONEXAO: Record<EstadoGateway["conexao"], string> = {
   parado: "parado",
 };
 
+/** Repositório do código-fonte: a AGPL pede que quem usa o serviço pela rede possa obtê-lo. */
+export const CODIGO_FONTE = "https://github.com/devballao/voxa";
+
 const numero = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 2 });
 
 export interface PropsPaginaStatus {
@@ -51,120 +54,129 @@ export function PaginaStatus({ saude, gateway, agora = Date.now() }: PropsPagina
   const carregando = api === null || gw === null;
 
   return (
-    <main className="pagina">
-      <header>
-        <h1>Voxa · Status do ambiente</h1>
-        <p role="status" aria-live="polite" className="resumo">
-          {carregando ? (
-            <Selo ok={null} texto="Verificando…" />
-          ) : tudoOk ? (
-            <Selo ok texto="Tudo funcionando" />
-          ) : (
-            <Selo ok={false} texto="Há serviços com problema" />
-          )}
-        </p>
-      </header>
-
-      <section aria-labelledby="titulo-api" className="cartao">
-        <h2 id="titulo-api">
-          API <code>/api/v1/health</code>
-        </h2>
-        {saude === null ? (
-          <p>Consultando…</p>
-        ) : saude.tipo === "inacessivel" ? (
-          <p>
-            <Selo ok={false} texto="API inacessível" />{" "}
-            <span className="detalhe">{saude.motivo}</span>
-          </p>
-        ) : (
-          <>
-            <p className="detalhe">
-              HTTP {saude.http} · versão {saude.saude.version} · no ar há{" "}
-              {numero.format(saude.saude.uptime_s)} s
-            </p>
-            <table>
-              <thead>
-                <tr>
-                  <th scope="col">Dependência</th>
-                  <th scope="col">Status</th>
-                  <th scope="col">Latência</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(Object.keys(NOMES) as HealthDependency[]).map((nome) => {
-                  const c = saude.saude.checks[nome];
-                  return (
-                    <tr key={nome}>
-                      <th scope="row">{NOMES[nome]}</th>
-                      <td>
-                        <Selo
-                          ok={c?.status === "ok"}
-                          texto={c?.status === "ok" ? "ok" : (c?.error ?? "sem dados")}
-                        />
-                      </td>
-                      <td>{c ? `${numero.format(c.latency_ms)} ms` : "—"}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </>
-        )}
-      </section>
-
-      <section aria-labelledby="titulo-gateway" className="cartao">
-        <h2 id="titulo-gateway">
-          Gateway <code>/gateway</code>
-        </h2>
-        <dl>
-          <dt>Conexão</dt>
-          <dd>
-            <Selo
-              ok={gateway.conexao === "conectando" ? null : gateway.conexao === "conectado"}
-              texto={CONEXAO[gateway.conexao]}
-            />
-            {gateway.tentativas > 0 && (
-              <span className="detalhe"> · tentativa {gateway.tentativas}</span>
-            )}
-          </dd>
-          <dt>HELLO</dt>
-          <dd>
-            {gateway.hello
-              ? `recebido (heartbeat a cada ${numero.format((gateway.heartbeatIntervalMs ?? 0) / 1000)} s)`
-              : "aguardando"}
-          </dd>
-          <dt>Heartbeats</dt>
-          <dd>
-            {gateway.acksRecebidos} de {gateway.heartbeatsEnviados} confirmados
-            {gateway.ultimoAckEm !== null && (
-              <span className="detalhe">
-                {" "}
-                · último ACK há {Math.max(0, Math.round((agora - gateway.ultimoAckEm) / 1000))} s
-              </span>
-            )}
-          </dd>
-          <dt>Último evento</dt>
-          <dd>
-            {gateway.ultimoEvento ? (
-              <code>
-                {gateway.ultimoEvento.t} #{gateway.ultimoEvento.s}{" "}
-                {JSON.stringify(gateway.ultimoEvento.d)}
-              </code>
+    <div className="pagina">
+      <main>
+        <header>
+          <h1>Voxa · Status do ambiente</h1>
+          <p role="status" aria-live="polite" className="resumo">
+            {carregando ? (
+              <Selo ok={null} texto="Verificando…" />
+            ) : tudoOk ? (
+              <Selo ok texto="Tudo funcionando" />
             ) : (
-              <span className="detalhe">nenhum (publique em dev:ping para testar)</span>
+              <Selo ok={false} texto="Há serviços com problema" />
             )}
-          </dd>
-          {gateway.ultimoFechamento && (
+          </p>
+        </header>
+
+        <section aria-labelledby="titulo-api" className="cartao">
+          <h2 id="titulo-api">
+            API <code>/api/v1/health</code>
+          </h2>
+          {saude === null ? (
+            <p>Consultando…</p>
+          ) : saude.tipo === "inacessivel" ? (
+            <p>
+              <Selo ok={false} texto="API inacessível" />{" "}
+              <span className="detalhe">{saude.motivo}</span>
+            </p>
+          ) : (
             <>
-              <dt>Último fechamento</dt>
-              <dd>
-                código {gateway.ultimoFechamento.codigo}
-                {gateway.ultimoFechamento.motivo && ` (${gateway.ultimoFechamento.motivo})`}
-              </dd>
+              <p className="detalhe">
+                HTTP {saude.http} · versão {saude.saude.version} · no ar há{" "}
+                {numero.format(saude.saude.uptime_s)} s
+              </p>
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Dependência</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Latência</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(Object.keys(NOMES) as HealthDependency[]).map((nome) => {
+                    const c = saude.saude.checks[nome];
+                    return (
+                      <tr key={nome}>
+                        <th scope="row">{NOMES[nome]}</th>
+                        <td>
+                          <Selo
+                            ok={c?.status === "ok"}
+                            texto={c?.status === "ok" ? "ok" : (c?.error ?? "sem dados")}
+                          />
+                        </td>
+                        <td>{c ? `${numero.format(c.latency_ms)} ms` : "—"}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </>
           )}
-        </dl>
-      </section>
-    </main>
+        </section>
+
+        <section aria-labelledby="titulo-gateway" className="cartao">
+          <h2 id="titulo-gateway">
+            Gateway <code>/gateway</code>
+          </h2>
+          <dl>
+            <dt>Conexão</dt>
+            <dd>
+              <Selo
+                ok={gateway.conexao === "conectando" ? null : gateway.conexao === "conectado"}
+                texto={CONEXAO[gateway.conexao]}
+              />
+              {gateway.tentativas > 0 && (
+                <span className="detalhe"> · tentativa {gateway.tentativas}</span>
+              )}
+            </dd>
+            <dt>HELLO</dt>
+            <dd>
+              {gateway.hello
+                ? `recebido (heartbeat a cada ${numero.format((gateway.heartbeatIntervalMs ?? 0) / 1000)} s)`
+                : "aguardando"}
+            </dd>
+            <dt>Heartbeats</dt>
+            <dd>
+              {gateway.acksRecebidos} de {gateway.heartbeatsEnviados} confirmados
+              {gateway.ultimoAckEm !== null && (
+                <span className="detalhe">
+                  {" "}
+                  · último ACK há {Math.max(0, Math.round((agora - gateway.ultimoAckEm) / 1000))} s
+                </span>
+              )}
+            </dd>
+            <dt>Último evento</dt>
+            <dd>
+              {gateway.ultimoEvento ? (
+                <code>
+                  {gateway.ultimoEvento.t} #{gateway.ultimoEvento.s}{" "}
+                  {JSON.stringify(gateway.ultimoEvento.d)}
+                </code>
+              ) : (
+                <span className="detalhe">nenhum (publique em dev:ping para testar)</span>
+              )}
+            </dd>
+            {gateway.ultimoFechamento && (
+              <>
+                <dt>Último fechamento</dt>
+                <dd>
+                  código {gateway.ultimoFechamento.codigo}
+                  {gateway.ultimoFechamento.motivo && ` (${gateway.ultimoFechamento.motivo})`}
+                </dd>
+              </>
+            )}
+          </dl>
+        </section>
+      </main>
+
+      {/* Fora do <main>: só assim o rodapé é o landmark "contentinfo" para leitores de tela. */}
+      <footer className="rodape">
+        O Voxa é software livre, sob a licença{" "}
+        <a href={`${CODIGO_FONTE}/blob/main/LICENSE`}>AGPL-3.0-or-later</a>. Código-fonte:{" "}
+        <a href={CODIGO_FONTE}>github.com/devballao/voxa</a>
+      </footer>
+    </div>
   );
 }

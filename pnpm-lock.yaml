@@ -251,7 +251,13 @@ importers:
       '@voxa/protocol':
         specifier: workspace:*
         version: link:../protocol
+      iovalkey:
+        specifier: 0.4.0
+        version: 0.4.0
     devDependencies:
+      '@types/node':
+        specifier: 24.19.0
+        version: 24.19.0
       '@vitest/coverage-v8':
         specifier: 5.0.3
         version: 5.0.3(vitest@5.0.3)
@@ -375,6 +381,9 @@ importers:
 
   services/gateway:
     dependencies:
+      '@voxa/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@voxa/protocol':
         specifier: workspace:*
         version: link:../../packages/protocol
@@ -418,6 +427,9 @@ importers:
 
   services/worker:
     dependencies:
+      '@voxa/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       iovalkey:
         specifier: 0.4.0
         version: 0.4.0

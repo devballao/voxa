@@ -1,6 +1,8 @@
 // Ponto de entrada da API: carrega a configuração, cria os clientes e abre a porta.
 import { readFileSync } from "node:fs";
+import { hostname } from "node:os";
 import { S3Client } from "@aws-sdk/client-s3";
+import { LeaseDeWorker } from "@voxa/core";
 import { createDb } from "@voxa/db";
 import { Valkey } from "iovalkey";
 import { RoomServiceClient } from "livekit-server-sdk";
@@ -66,7 +68,16 @@ const app = await construirApp({
   },
 });
 
+// Worker de IDs (Snowflake): reservado no Valkey e renovado em segundo plano.
+const lease = new LeaseDeWorker({
+  valkey,
+  dono: `api-${hostname()}-${process.pid}`,
+  logger: app.log,
+});
+await lease.iniciar();
+
 app.addHook("onClose", async () => {
+  await lease.liberar();
   await Promise.allSettled([db.close(), valkey.quit()]);
   s3.destroy();
 });

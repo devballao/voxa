@@ -36,14 +36,18 @@ Regras: rotas não acessam o banco diretamente; serviços não conhecem HTTP; to
 Todas as entidades usam **Snowflake** de 64 bits, serializado como **string** no JSON (JavaScript perde precisão acima de 2⁵³).
 
 ```
- 63                      22 21       12 11          0
-┌─────────────────────────┬───────────┬─────────────┐
-│ ms desde 2025-01-01 (42)│ worker(10)│ sequência(12)│
-└─────────────────────────┴───────────┴─────────────┘
+ 63 62                    22 21       12 11          0
+┌──┬──────────────────────┬───────────┬─────────────┐
+│0 │ ms desde 2025-01-01  │ worker(10)│ sequência(12)│
+│  │ (41)                 │           │              │
+└──┴──────────────────────┴───────────┴─────────────┘
 ```
 
 - Ordenável por tempo → paginação de mensagens por `id` sem índice extra de data.
-- `worker` é atribuído a cada processo na inicialização (lease no Valkey).
+- O bit 63 fica sempre em 0, porque o `bigint` do Postgres tem sinal. Sobram 41 bits de tempo: os IDs valem até meados de **2094**.
+- Até 4096 IDs por milissegundo em cada processo; esgotada a sequência, o gerador espera o milissegundo seguinte.
+- Se o relógio do sistema voltar até 10 ms, o gerador espera alcançar o instante anterior; acima disso, recusa gerar (não repete IDs).
+- `worker` (0 a 1023) é um **lease no Valkey** (`snowflake:worker:N`), reservado com `SET NX` na inicialização, renovado a cada 10 s (validade de 30 s) e liberado no desligamento. Sem lease válido, o processo continua no ar, mas não gera IDs (`SERVICE_UNAVAILABLE`) até conseguir um. Implementação em `@voxa/core` (`GeradorSnowflake`, `LeaseDeWorker`).
 
 ## 4.3 Modelo de dados
 

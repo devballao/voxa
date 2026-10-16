@@ -120,7 +120,7 @@ O repositório tem um [`.devcontainer/devcontainer.json`](../.devcontainer/devco
 - **Codespaces:** botão **Abrir no GitHub Codespaces** no README, ou *Code → Codespaces → Create codespace on main*.
 - **VS Code local:** com a extensão *Dev Containers*, rode *Dev Containers: Reopen in Container*.
 
-Ao criar o contêiner, rodam `pnpm install` e `pnpm bootstrap`. Quando terminar, é só:
+Ao criar o contêiner, rodam `pnpm install`, a instalação do Chromium do Playwright (com as bibliotecas do sistema) e `pnpm bootstrap`. Quando terminar, é só:
 
 ```bash
 pnpm dev
@@ -205,7 +205,9 @@ Os testes de ponta a ponta (E2E) usam o **Playwright** e ficam em `apps/web/e2e/
 
 A página de resumo é um arquivo só (as imagens vão embutidas): abra no navegador ou envie para alguém. Ela traz as capturas de cada cenário, as issues e os PRs que entraram na etapa e o que ficou para depois, consultados no GitHub. Sem acesso ao GitHub, a página sai só com as capturas.
 
-Na primeira vez, o `pnpm demo` baixa o Chromium do Playwright (~150 MB). Se faltarem bibliotecas do sistema no Linux: `pnpm --filter @voxa/web exec playwright install --with-deps chromium`.
+No **Codespace e no Dev Container**, o Chromium do Playwright e as bibliotecas de sistema de que ele precisa já vêm instalados na criação do contêiner. **Fora dele**, o `pnpm demo` baixa o Chromium na primeira vez (~150 MB). Se o Linux não tiver as bibliotecas, o `pnpm demo` para antes de subir o ambiente e mostra o comando que resolve: `pnpm --filter @voxa/web exec playwright install --with-deps chromium` (usa `sudo`, uma vez por máquina).
+
+Se sobrar um `pnpm dev` antigo aberto (por exemplo, depois de trocar de branch), o `pnpm dev` e o `pnpm demo` avisam que a porta está ocupada ou que a API não responde: encerre-o com Ctrl+C.
 
 **Para acrescentar um cenário** à demonstração, escreva o teste E2E normalmente e chame `capturar` no ponto que vale mostrar:
 

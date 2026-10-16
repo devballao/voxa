@@ -11,6 +11,7 @@ Cada ADR registra **uma** decisão: o contexto, a escolha e as consequências. A
 | [0005](0005-armazenamento-s3.md) | Armazenamento de arquivos compatível com S3 | Aceito |
 | [0006](0006-cliente-react-tauri.md) | React no web e Tauri no desktop | Aceito (web); Proposto (desktop) |
 | [0007](0007-implantacao.md) | Docker Compose como padrão, Kubernetes opcional | Proposto (validação no Milestone 2) |
+| [0008](0008-deploy-puxado-pelo-servidor.md) | Deploy contínuo puxado pelo servidor | Proposto (validação na primeira instância, #47) |
 
 ## Modelo
 

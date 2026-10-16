@@ -1,0 +1,18 @@
+# Deploy contínuo do Voxa: atualiza a instância para o commit mais recente da main
+# que já tem imagens publicadas (infra/servidor/atualizar.sh). Disparado pelo timer.
+[Unit]
+Description=Voxa: atualizar para a versão mais recente da main
+Wants=network-online.target
+After=network-online.target docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+User=voxa
+Group=voxa
+# Cria /var/lib/voxa (versão no ar, versão fixada, versão que falhou) para o usuário voxa.
+StateDirectory=voxa
+WorkingDirectory=/opt/voxa
+ExecStart=/opt/voxa/infra/servidor/atualizar.sh
+# Pull das imagens + subida + espera da saúde de todos os serviços.
+TimeoutStartSec=20min
